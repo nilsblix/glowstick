@@ -117,13 +117,13 @@ let collect_segments xs esc =
     let add_seg acc seg next_bg_opt =
         let sm = match seg.start_marker with
             | None -> ""
-            | Some m -> decorate m |> colored seg.background
+            | Some m -> decorate m |> foreground seg.background
                 |> append_to_ansi "" esc in
         let text = seg.decorated_text |> append_to_ansi "" esc in
         let em = match seg.end_marker with
             | None -> ""
             | Some m ->
-                let base = decorate m |> colored seg.background in
+                let base = decorate m |> foreground seg.background in
                 (match next_bg_opt with
                     | Some next_bg -> base |> background next_bg |> append_to_ansi "" esc
                     | None -> base |> append_to_ansi "" esc) in
@@ -159,7 +159,7 @@ let () =
         let bg = Hex "0xFF469C" in
         let fg = Hex "0xFAFAFA" in {
             decorated_text = decorate (cwd ^ " ")
-                |> background bg |> colored fg;
+                |> background bg |> foreground fg;
             background = bg;
             start_marker = Some "\u{E0B6}";
             end_marker = Some "\u{E0B0}";
@@ -172,7 +172,7 @@ let () =
             let bg = Hex "0x4CAF50" in
             let fg = Hex "0x1B394A" in {
                 decorated_text = decorate (" " ^ string_of_git git ^ " ")
-                    |> background bg |> colored fg;
+                    |> background bg |> foreground fg;
                 background = bg;
                 start_marker = None;
                 end_marker = Some "\u{E0B0}";
@@ -185,7 +185,7 @@ let () =
             let bg = Hex "0x3986FF" in
             let fg = Hex "0xFAFAFA" in {
                 decorated_text = decorate (" \u{f1105}" ^ string_of_nix nix ^ " ")
-                    |> background bg |> colored fg;
+                    |> background bg |> foreground fg;
                 background = bg;
                 start_marker = None;
                 end_marker = Some "\u{E0B0}";

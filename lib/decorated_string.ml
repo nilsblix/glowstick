@@ -68,14 +68,14 @@ let rec color_to_ansi_bg color = match color with
 
 type decorated_string =
     | Bold of decorated_string
-    | Colored of (decorated_string * color)
+    | Foreground of (decorated_string * color)
     | Background of (decorated_string * color)
     | Underlined of decorated_string
     | Italic of decorated_string
     | Default of string
 
 let bold dec = Bold dec
-let colored col dec = Colored (dec, col)
+let foreground col dec = Foreground (dec, col)
 let background col dec = Background (dec, col)
 let underlined dec = Underlined dec
 let italic dec = Italic dec
@@ -86,7 +86,7 @@ let rec append_to_ansi s escape_fun dec = match dec with
         let s = s ^ escape_fun "\x1b[1m" in
         let s = append_to_ansi s escape_fun inner in
         s ^ escape_fun "\x1b[22m"
-    | Colored (inner, color) ->
+    | Foreground (inner, color) ->
         let s = s ^ escape_fun ("\x1b[" ^ color_to_ansi color ^ "m") in
         let s = append_to_ansi s escape_fun inner in
         s ^ escape_fun "\x1b[39m"
