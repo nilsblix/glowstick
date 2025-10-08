@@ -19,6 +19,13 @@ let contains_substring needle (haystack: string) =
         in
         scan 0
 
+let user_name () =
+    let uid = Unix.getuid () in
+    let pw = Unix.getpwuid uid in
+    pw.Unix.pw_name
+
+let hostname () = Unix.gethostname ()
+
 let cwd_label () =
     let cwd = Sys.getcwd () in
     let base = Filename.basename cwd in
@@ -122,109 +129,28 @@ let () =
     let nix = detect_nix_shell () in
 
     let esc = get_esc () in
-    let acc = "" in
+    let cwd = decorate cwd |> bold |> append_to_ansi "" esc in
 
-    let acc = decorate cwd
-        |> foreground (Hex "0x87FF00")
-        |> append_to_ansi acc esc in
-    let acc = match git with
-        | NotInGitRepo -> acc
+    let git_label = match git with
+        | NotInGitRepo -> ""
+        | _ -> " " ^ (string_of_git git) in
+
+    let nix_col = Hex "0xB7AE0" in
+    let nix_label = match nix with
+        | NotInNixShell -> ""
         | _ ->
-            decorate (string_of_git git)
-                |> foreground (Hex "0x60D7FF")
-                |> append_to_ansi (acc ^ " in ") esc
-        in
-    let acc = match nix with
-        | NotInNixShell -> acc
-        | _ ->
-            decorate (string_of_nix nix)
-                |> foreground (Hex "0x7D46B6")
-                |> append_to_ansi (acc ^ " w. ") esc
-        in
-    let acc = decorate " \u{f0627} "
-        |> foreground (Hex "0xFF642B")
-        |> append_to_ansi acc esc
-        in
-    print_string (acc ^ " ");;
+        " " ^ (decorate ("*" ^ string_of_nix nix)
+        |> foreground nix_col
+        |> bold
+        |> append_to_ansi "" esc) in
 
-(* Uncomment this if you want a powerline-style prompt *)
-(* type segment = { *)
-(*     decorated_text : decorated_string; *)
-(*     background     : color; *)
-(*     start_marker   : string option; *)
-(*     end_marker     : string option; *)
-(* } *)
-(**)
-(* let collect_segments xs esc = *)
-(*     let add_seg acc seg next_bg_opt = *)
-(*         let sm = match seg.start_marker with *)
-(*             | None -> "" *)
-(*             | Some m -> decorate m |> foreground seg.background *)
-(*                 |> append_to_ansi "" esc in *)
-(*         let text = seg.decorated_text |> append_to_ansi "" esc in *)
-(*         let em = match seg.end_marker with *)
-(*             | None -> "" *)
-(*             | Some m -> *)
-(*                 let base = decorate m |> foreground seg.background in *)
-(*                 (match next_bg_opt with *)
-(*                     | Some next_bg -> base |> background next_bg |> append_to_ansi "" esc *)
-(*                     | None -> base |> append_to_ansi "" esc) in *)
-(*         acc ^ sm ^ text ^ em in *)
-(**)
-(*     let rec _collect acc xs = match xs with *)
-(*         | [] -> acc *)
-(*         | head :: (next :: tail) -> *)
-(*             let acc = add_seg acc head (Some next.background) in *)
-(*             _collect acc (next :: tail) *)
-(*         | head :: tail -> *)
-(*             let acc = add_seg acc head None in *)
-(*             _collect acc tail *)
-(*     in _collect "" xs *)
+    let ret = decorate (" " ^ cwd ^ git_label ^ nix_label ^ " ")
+        |> foreground Black
+        |> background (Hex "0xD8D8D8")
+        |> append_to_ansi "" esc in
 
-(* let () = *)
-(*     let cwd = cwd_label () in *)
-(*     let git = git_info () in *)
-(*     let nix = detect_nix_shell () in *)
-(**)
-(*     let esc = get_esc () in *)
-(*     let base_segments = [ *)
-(*         let bg = Hex "0xFF469C" in *)
-(*         let fg = Hex "0xFAFAFA" in { *)
-(*             decorated_text = decorate (cwd ^ " ") *)
-(*                 |> background bg |> foreground fg; *)
-(*             background = bg; *)
-(*             start_marker = Some "\u{E0B6}"; *)
-(*             end_marker = Some "\u{E0B0}"; *)
-(*         }; *)
-(*     ] in *)
-(**)
-(*     let git_segments = match git with *)
-(*         | NotInGitRepo -> [] *)
-(*         | Branch _ -> [ *)
-(*             let bg = Hex "0x4CAF50" in *)
-(*             let fg = Hex "0x1B394A" in { *)
-(*                 decorated_text = decorate (" " ^ string_of_git git ^ " ") *)
-(*                     |> background bg |> foreground fg; *)
-(*                 background = bg; *)
-(*                 start_marker = None; *)
-(*                 end_marker = Some "\u{E0B0}"; *)
-(*             } *)
-(*         ] in *)
-(**)
-(*     let nix_segments = match nix with *)
-(*         | NotInNixShell -> [] *)
-(*         | _ -> [ *)
-(*             let bg = Hex "0x3986FF" in *)
-(*             let fg = Hex "0xFAFAFA" in { *)
-(*                 decorated_text = decorate (" \u{f1105}" ^ string_of_nix nix ^ " ") *)
-(*                     |> background bg |> foreground fg; *)
-(*                 background = bg; *)
-(*                 start_marker = None; *)
-(*                 end_marker = Some "\u{E0B0}"; *)
-(*             } *)
-(*         ] in *)
-(**)
-(*     let segments = base_segments @ git_segments @ nix_segments in *)
-(**)
-(*     let ret = collect_segments segments esc in *)
-(*     print_string ("\n" ^ ret ^ " ");; *)
+    let ret = decorate " $ "
+        |> foreground (Hex "0xDF1020")
+        |> append_to_ansi ret esc in
+
+    print_string ret
