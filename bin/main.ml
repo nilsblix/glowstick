@@ -129,7 +129,10 @@ let () =
     let nix = detect_nix_shell () in
 
     let esc = get_esc () in
-    let cwd = decorate cwd |> bold |> append_to_ansi "" esc in
+    let cwd_background = Hex "0x4D4D4D" in
+    let cwd_start = decorate "\u{e0b6}" |> foreground cwd_background |> append_to_ansi "" esc in
+    let cwd_end   = decorate "\u{e0b0}" |> foreground cwd_background |> append_to_ansi "" esc in
+    let cwd = cwd_start ^ (decorate cwd |> background cwd_background |> bold |> append_to_ansi "" esc) ^ cwd_end in
 
     let git_label = match git with
         | NotInGitRepo -> ""
@@ -144,12 +147,12 @@ let () =
         |> bold
         |> append_to_ansi "" esc) in
 
-    let ret = decorate (" " ^ cwd ^ git_label ^ nix_label ^ " ")
-        |> foreground Black
-        |> background (Hex "0xD8D8D8")
+    let ret = decorate (cwd ^ git_label ^ nix_label ^ " ")
+        |> foreground White
+        (* |> background (Hex "0xD8D8D8") *)
         |> append_to_ansi "" esc in
 
-    let ret = decorate " $ "
+    let ret = decorate "$ "
         |> foreground (Hex "0xDF1020")
         |> append_to_ansi ret esc in
 
