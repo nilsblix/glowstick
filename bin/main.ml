@@ -122,7 +122,7 @@ let () =
     let nix = detect_nix_shell () in
 
     let esc = get_esc () in
-    let acc = " " in
+    let acc = "" in
 
     let acc = decorate cwd
         |> foreground (Hex "0x87FF00")
@@ -141,11 +141,11 @@ let () =
                 |> foreground (Hex "0x7D46B6")
                 |> append_to_ansi (acc ^ " w. ") esc
         in
-    let acc = decorate " \u{f0627}"
+    let acc = decorate " \u{f0627} "
         |> foreground (Hex "0xFF642B")
         |> append_to_ansi acc esc
         in
-    print_string ("\n" ^ acc ^ " ");;
+    print_string (acc ^ " ");;
 
 (* Uncomment this if you want a powerline-style prompt *)
 (* type segment = { *)
