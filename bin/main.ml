@@ -158,7 +158,7 @@ let () =
             |> foreground BrightBlue
             |> append_to_ansi fst_line esc
         in
-    let snd_line = decorate " └> "
+    let snd_line = decorate " └▶ "
         |> foreground blue
         |> bold
         |> append_to_ansi "" esc in
