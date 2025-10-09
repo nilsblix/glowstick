@@ -130,12 +130,11 @@ let () =
 
     let esc = get_esc () in
 
-    let ret = decorate (user_name() ^ "@" ^ hostname () ^ " ") |> bold |> append_to_ansi "" esc in
-    let ret = decorate (cwd ^ " ") |> foreground (Hex "0xA2C4E0") |> bold |> append_to_ansi ret esc in
+    let ret = decorate (" " ^ cwd) |> foreground (Hex "0xA2C4E0") |> bold |> append_to_ansi "" esc in
     let ret = match nix with
         | NotInNixShell -> ret
         | _ ->
-            decorate ("nix: " ^ string_of_nix nix) |> foreground BrightBlue |> append_to_ansi ret esc
+            decorate (" nix: " ^ string_of_nix nix) |> foreground BrightBlue |> append_to_ansi ret esc
         in
     let ret = decorate " > " |> foreground Red |> append_to_ansi ret esc in
     print_string ret;
