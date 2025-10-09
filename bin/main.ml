@@ -24,9 +24,17 @@ let user_name () =
     let pw = Unix.getpwuid uid in
     pw.Unix.pw_name
 
-let hostname () = Unix.gethostname ()
+let host_name () = Unix.gethostname ()
 
 let cwd_label () =
+    let cwd = Sys.getcwd () in
+    match Sys.getenv_opt "HOME" with
+    | Some home -> (match remove_prefix home cwd with
+        | Some path -> "~" ^ path
+        | None -> cwd)
+    | _ -> cwd
+
+let cwd_label_basename () =
     let cwd = Sys.getcwd () in
     let base = Filename.basename cwd in
     match Sys.getenv_opt "HOME" with
@@ -124,22 +132,36 @@ let get_esc () =
         | _ -> default
 
 let () =
+    let user = user_name () in
+    let host = host_name () in
     let cwd = cwd_label () in
     let git = git_info () in
     let nix = detect_nix_shell () in
 
     let esc = get_esc () in
 
-    let ret = decorate (" " ^ cwd) |> foreground (Hex "0xA2C4E0") |> bold |> append_to_ansi "" esc in
-    let ret = match git with
-        | NotInGitRepo -> ret
-        | _ ->
-            decorate (" git: " ^ string_of_git git) |> foreground (Hex "0x516BEB") |> append_to_ansi ret esc
+    let blue = Hex "0xAAABD8" in
+    let fst_line = decorate (" " ^ user ^ " @ " ^ host)
+        |> foreground blue
+        |> bold
+        |> append_to_ansi "" esc in
+    let fst_line = decorate (" " ^ cwd) |> append_to_ansi fst_line esc in
+    let fst_line = match git with
+        | NotInGitRepo -> fst_line
+        | _ -> decorate (" (git: " ^ string_of_git git ^ ")")
+            |> foreground (Hex "0x8CA583")
+            |> append_to_ansi fst_line esc
         in
-    let ret = match nix with
-        | NotInNixShell -> ret
-        | _ ->
-            decorate (" nix: " ^ string_of_nix nix) |> foreground BrightBlue |> append_to_ansi ret esc
+    let fst_line = match nix with
+        | NotInNixShell -> fst_line
+        | _ -> decorate (" (nix: " ^ string_of_nix nix ^ ")")
+            |> foreground BrightBlue
+            |> append_to_ansi fst_line esc
         in
-    let ret = decorate " > " |> foreground Red |> bold |> append_to_ansi ret esc in
-    print_string ret;
+    let snd_line = decorate " └> "
+        |> foreground blue
+        |> bold
+        |> append_to_ansi "" esc in
+    print_string fst_line;
+    print_newline ();
+    print_string snd_line;
