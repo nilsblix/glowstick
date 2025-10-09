@@ -125,35 +125,39 @@ let get_esc () =
 
 let () =
     let cwd = cwd_label () in
-    let git = git_info () in
+    (* let git = git_info () in *)
     let nix = detect_nix_shell () in
 
     let esc = get_esc () in
-    let cwd_background = Hex "0x4D4D4D" in
-    let cwd_start = decorate "\u{e0b6}" |> foreground cwd_background |> append_to_ansi "" esc in
-    let cwd_end   = decorate "\u{e0b0}" |> foreground cwd_background |> append_to_ansi "" esc in
-    let cwd = cwd_start ^ (decorate cwd |> background cwd_background |> bold |> append_to_ansi "" esc) ^ cwd_end in
 
-    let git_label = match git with
-        | NotInGitRepo -> ""
-        | _ -> " " ^ (string_of_git git) in
-
-    let nix_col = Hex "0xB7AE0" in
-    let nix_label = match nix with
-        | NotInNixShell -> ""
+    let ret = decorate (user_name() ^ "@" ^ hostname () ^ " ") |> bold |> append_to_ansi "" esc in
+    let ret = decorate (cwd ^ " ") |> foreground (Hex "0xA2C4E0") |> bold |> append_to_ansi ret esc in
+    let ret = match nix with
+        | NotInNixShell -> ret
         | _ ->
-        " " ^ (decorate ("*" ^ string_of_nix nix)
-        |> foreground nix_col
-        |> bold
-        |> append_to_ansi "" esc) in
-
-    let ret = decorate (cwd ^ git_label ^ nix_label ^ " ")
-        |> foreground White
-        (* |> background (Hex "0xD8D8D8") *)
-        |> append_to_ansi "" esc in
-
-    let ret = decorate "$ "
-        |> foreground (Hex "0xDF1020")
-        |> append_to_ansi ret esc in
-
-    print_string ret
+            decorate ("nix: " ^ string_of_nix nix) |> foreground BrightBlue |> append_to_ansi ret esc
+        in
+    let ret = decorate " > " |> foreground Red |> append_to_ansi ret esc in
+    print_string ret;
+    (* let cwd_background = Hex "0x4D4D4D" in *)
+    (* let cwd_start = decorate "\u{e0b6}" |> foreground cwd_background |> append_to_ansi "" esc in *)
+    (* let cwd_end   = decorate "\u{e0b0}" |> foreground cwd_background |> append_to_ansi "" esc in *)
+    (* let cwd = cwd_start ^ (decorate cwd |> background cwd_background |> bold |> append_to_ansi "" esc) ^ cwd_end in *)
+    (* let git_label = match git with *)
+    (*     | NotInGitRepo -> "" *)
+    (*     | _ -> " " ^ (string_of_git git) in *)
+    (* let nix_col = Hex "0xB7AE0" in *)
+    (* let nix_label = match nix with *)
+    (*     | NotInNixShell -> "" *)
+    (*     | _ -> *)
+    (*     " " ^ (decorate ("*" ^ string_of_nix nix) *)
+    (*     |> foreground nix_col *)
+    (*     |> bold *)
+    (*     |> append_to_ansi "" esc) in *)
+    (* let ret = decorate (cwd ^ git_label ^ nix_label ^ " ") *)
+    (*     |> foreground White *)
+    (*     (* |> background (Hex "0xD8D8D8") *) *)
+    (*     |> append_to_ansi "" esc in *)
+    (* let ret = decorate "$ " *)
+    (*     |> foreground (Hex "0xDF1020") *)
+    (*     |> append_to_ansi ret esc in *)
