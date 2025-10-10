@@ -132,36 +132,25 @@ let get_esc () =
         | _ -> default
 
 let () =
-    let user = user_name () in
-    let host = host_name () in
-    let cwd = cwd_label () in
-    let git = git_info () in
+    let _ = user_name () in
+    let _ = host_name () in
+    let cwd = cwd_label_basename () in
+    let _ = git_info () in
     let nix = detect_nix_shell () in
 
     let esc = get_esc () in
 
-    let blue = Hex "0xAAABD8" in
-    let fst_line = decorate (" " ^ user ^ " @ " ^ host)
-        |> foreground blue
+    let purp = Hex "0x5757D9" in
+    let ret = decorate (" " ^ cwd)
+        |> foreground (Hex "0xFFFFFF")
         |> bold
         |> append_to_ansi "" esc in
-    let fst_line = decorate (" " ^ cwd) |> append_to_ansi fst_line esc in
-    let fst_line = match git with
-        | NotInGitRepo -> fst_line
-        | _ -> decorate (" (git: " ^ string_of_git git ^ ")")
-            |> foreground (Hex "0x8CA583")
-            |> append_to_ansi fst_line esc
-        in
-    let fst_line = match nix with
-        | NotInNixShell -> fst_line
-        | _ -> decorate (" (nix: " ^ string_of_nix nix ^ ")")
-            |> foreground BrightBlue
-            |> append_to_ansi fst_line esc
-        in
-    let snd_line = decorate " └> "
-        |> foreground blue
-        |> bold
-        |> append_to_ansi "" esc in
-    print_string fst_line;
-    print_newline ();
-    print_string snd_line;
+    let ret = match nix with
+        | NotInNixShell -> ret
+        | _ -> decorate (" *" ^ string_of_nix nix)
+            |> foreground Yellow
+            |> append_to_ansi ret esc in
+    let ret = decorate " > "
+        |> foreground purp
+        |> append_to_ansi ret esc in
+    print_string ret;
