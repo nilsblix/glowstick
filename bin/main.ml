@@ -123,7 +123,7 @@ let string_of_nix nix = match nix with
 
 let get_esc () =
     let default = (fun x -> x) in
-    let shell_opt = Sys.getenv_opt "CAMEL_SHELL_TYPE" in
+    let shell_opt = Sys.getenv_opt "GLOSTICK_SHELL_TYPE" in
     match shell_opt with
     | None -> default
     | Some s -> match s with
