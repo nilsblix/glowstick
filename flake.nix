@@ -11,18 +11,18 @@
             let
                 pkgs = import nixpkgs { inherit system; };
                 ocamlPackages = pkgs.ocamlPackages;
-                camelPrompt = ocamlPackages.buildDunePackage {
-                    pname = "camel_prompt";
+                glowstick = ocamlPackages.buildDunePackage {
+                    pname = "glowstick";
                     version = "0.1.0";
                     src = self;
                     # duneVersion = "3.10";
                 };
             in
             {
-                packages.default = camelPrompt;
+                packages.default = glowstick;
                 apps.default = {
                     type = "app";
-                    program = "${camelPrompt}/bin/main";
+                    program = "${glowstick}/bin/main";
                 };
                 devShells.default = pkgs.mkShell {
                     packages = [

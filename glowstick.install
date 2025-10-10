@@ -1,0 +1,8 @@
+lib: [
+  "_build/install/default/lib/glowstick/META"
+  "_build/install/default/lib/glowstick/dune-package"
+  "_build/install/default/lib/glowstick/opam"
+]
+bin: [
+  "_build/install/default/bin/main"
+]
