@@ -189,7 +189,7 @@ let () =
         | _ -> decorate (string_of_nix nix)
             |> foreground Magenta
             |> append_to_ansi (ret ^ ", ") esc in
-    let ret = decorate "\u{ec07} "
-        |> foreground White
+    let ret = decorate " > "
+        |> foreground BrightRed
         |> append_to_ansi ret esc in
     print_string ret;
