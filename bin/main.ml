@@ -34,13 +34,49 @@ let cwd_label () =
         | None -> cwd)
     | _ -> cwd
 
-let cwd_label_basename () =
+let split_on_slash s =
+    let len = String.length s in
+    let rec loop i start acc =
+        if i >= len then
+            let seg = String.sub s start (len - start) in
+            List.rev (seg :: acc)
+        else if s.[i] = '/' then
+            let seg = String.sub s start (i - start) in
+            loop (i + 1) (i + 1) (seg :: acc)
+        else
+            loop (i + 1) start acc
+    in
+    if len = 0 then [] else loop 0 0 []
+
+let abbreviate_segments segments =
+    match List.rev segments with
+    | [] -> ""
+    | last :: rest_rev ->
+        let rest = List.rev rest_rev in
+        let abbrev_rest = List.map (fun s -> if s = "" then "" else String.sub s 0 1) rest in
+        String.concat "/" (abbrev_rest @ [last])
+
+let cwd_label_abbreviated () =
     let cwd = Sys.getcwd () in
-    let base = Filename.basename cwd in
     match Sys.getenv_opt "HOME" with
     | Some home when String.starts_with ~prefix:home cwd ->
-        if cwd = home then "~" else base
-    | _ -> base
+        if cwd = home then "~"
+        else
+            let start_idx =
+                let l = String.length home in
+                if String.length cwd > l && cwd.[l] = '/' then l + 1 else l
+            in
+            let rel = String.sub cwd start_idx (String.length cwd - start_idx) in
+            let segments = split_on_slash rel in
+            "~/" ^ abbreviate_segments segments
+    | _ ->
+        if String.length cwd = 1 && cwd.[0] = '/' then "/"
+        else if String.starts_with ~prefix:"/" cwd then
+            let nolead = String.sub cwd 1 (String.length cwd - 1) in
+            let segments = split_on_slash nolead in
+            "/" ^ abbreviate_segments segments
+        else
+            abbreviate_segments (split_on_slash cwd)
 
 type nix_shell_type = | NotInNixShell | Pure | Impure | Unknown
 
@@ -134,23 +170,26 @@ let get_esc () =
 let () =
     let _ = user_name () in
     let _ = host_name () in
-    let cwd = cwd_label_basename () in
-    let _ = git_info () in
+    let cwd = cwd_label_abbreviated () in
+    let git = git_info () in
     let nix = detect_nix_shell () in
 
     let esc = get_esc () in
 
-    let purp = Hex "0x5757D9" in
-    let ret = decorate (" " ^ cwd)
-        |> foreground (Hex "0xFFFFFF")
-        |> bold
+    let ret = decorate ("" ^ cwd)
+        |> foreground (Hex "0xE9E8D9")
         |> append_to_ansi "" esc in
+    let ret = match git with
+        | NotInGitRepo -> ret
+        | _ -> decorate (string_of_git git)
+            |> foreground (Hex "0xC9DF9E")
+            |> append_to_ansi (ret ^ " on ") esc in
     let ret = match nix with
         | NotInNixShell -> ret
-        | _ -> decorate (" *" ^ string_of_nix nix)
-            |> foreground Yellow
-            |> append_to_ansi ret esc in
-    let ret = decorate " > "
-        |> foreground purp
+        | _ -> decorate (string_of_nix nix)
+            |> foreground Magenta
+            |> append_to_ansi (ret ^ ", ") esc in
+    let ret = decorate "\u{ec07} "
+        |> foreground White
         |> append_to_ansi ret esc in
     print_string ret;
