@@ -167,6 +167,63 @@ let get_esc () =
         | "bash" -> (fun x -> "\\[" ^ x ^ "\\]")
         | _ -> default
 
+(* Compute the visible display width of a string by ignoring shell wrappers
+   (zsh: %{...%}, bash: \[...\]) and raw ANSI escape sequences. *)
+let visible_length (s : string) : int =
+    let len = String.length s in
+    let rec find_end_zsh i =
+        if i + 1 >= len then len
+        else if s.[i] = '%' && s.[i + 1] = '}' then i + 2
+        else find_end_zsh (i + 1)
+    in
+    let rec find_end_bash i =
+        if i + 1 >= len then len
+        else if s.[i] = '\\' && s.[i + 1] = ']' then i + 2
+        else find_end_bash (i + 1)
+    in
+    let rec skip_ansi j =
+        if j >= len then len else
+        (* Skip until a final byte in the CSI sequence. Conservatively stop at
+           any final byte between '@' and '~' (inclusive), which covers 'm',
+           cursor movement, etc. *)
+        if s.[j] >= '@' && s.[j] <= '~' then j + 1
+        else skip_ansi (j + 1)
+    in
+    let rec loop i acc =
+        if i >= len then acc else
+        (* zsh non-printing wrapper %{ ... %} *)
+        if s.[i] = '%' && i + 1 < len && s.[i + 1] = '{' then
+            loop (find_end_zsh (i + 2)) acc
+        (* bash non-printing wrapper \[ ... \] *)
+        else if s.[i] = '\\' && i + 1 < len && s.[i + 1] = '[' then
+            loop (find_end_bash (i + 2)) acc
+        (* raw ESC (should normally be wrapped, but skip defensively) *)
+        else if s.[i] = '\x1b' then
+            loop (skip_ansi (i + 1)) acc
+        else
+            loop (i + 1) (acc + 1)
+    in
+    loop 0 0
+
+(** Print a prompt with a left and right segment. The right segment is rendered
+   flush-right on the current terminal line while the cursor remains just after
+   the left segment. *)
+let print_prompt (left : string) (right : string) : unit =
+    let esc = get_esc () in
+    let right_w = visible_length right in
+    (* Save cursor, disable wrap, jump far right, move left by right width,
+       print right, re-enable wrap, and restore cursor. *)
+    let control =
+        esc "\x1b[s" ^
+        esc "\x1b[?7l" ^
+        esc "\x1b[999C" ^
+        esc (Printf.sprintf "\x1b[%dD" right_w) ^
+        right ^
+        esc "\x1b[?7h" ^
+        esc "\x1b[u"
+    in
+    print_string (left ^ control)
+
 let () =
     let _ = user_name () in
     let _ = host_name () in
@@ -176,20 +233,32 @@ let () =
 
     let esc = get_esc () in
 
-    let ret = decorate ("" ^ cwd)
-        |> foreground (Hex "0xE9E8D9")
+    let left = decorate "⋊> "
+        |> foreground (Hex "0xDDDDFF")
         |> append_to_ansi "" esc in
-    let ret = match git with
-        | NotInGitRepo -> ret
+    let left = decorate (left ^ cwd)
+        |> foreground (Hex "0xBCBBA7")
+        |> append_to_ansi "" esc in
+    let left = match git with
+        | NotInGitRepo -> left
         | _ -> decorate (string_of_git git)
-            |> foreground (Hex "0xC9DF9E")
-            |> append_to_ansi (ret ^ " on ") esc in
-    let ret = match nix with
-        | NotInNixShell -> ret
-        | _ -> decorate (string_of_nix nix)
-            |> foreground Magenta
-            |> append_to_ansi (ret ^ ", ") esc in
-    let ret = decorate " > "
+            |> foreground Green
+            |> append_to_ansi (left ^ " on ") esc in
+    let left = match nix with
+        | NotInNixShell -> ""
+        | _ -> decorate (" (" ^ string_of_nix nix ^ ")")
+            |> foreground Blue
+            |> append_to_ansi left esc in
+    let left = decorate " > "
         |> foreground BrightRed
-        |> append_to_ansi ret esc in
-    print_string ret;
+        |> append_to_ansi left esc in
+    let time_string () =
+        let open Unix in
+        let tm = localtime (time ()) in
+        Printf.sprintf "%02d:%02d:%02d" tm.tm_hour tm.tm_min tm.tm_sec
+        in
+    let time = decorate (time_string ())
+        |> foreground (Hex "0x545454")
+        |> append_to_ansi "" esc in
+
+    print_prompt left time;
