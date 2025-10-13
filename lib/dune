@@ -1,3 +1,5 @@
 (library
  (name decorated)
- (modules decorated_string))
+ (wrapped false)
+ (modules decorated_string utils mods)
+ (libraries unix))
