@@ -42,6 +42,7 @@ let () =
     in
     let left = decorate " ⋊> " |> foreground (Hex "0xDDDDFF") |> append_to_ansi left esc in
 
-    let right = decorate (time ()) |> foreground grey |> append_to_ansi "" esc in
+    (* let right = decorate (time ()) |> foreground grey |> append_to_ansi "" esc in *)
+    let right = "Testing. Testing!" in
 
     print_prompt left right
