@@ -236,9 +236,10 @@ let () =
     let grey = Hex "0x545454" in
 
 
-    let left = decorate "⋊> "
+    let fish = decorate "⋊> "
         |> foreground (Hex "0xDDDDFF")
         |> append_to_ansi "" esc in
+    let left = "" in
     let left = decorate (left ^ cwd)
         |> foreground (Hex "0xBCBBA7")
         |> append_to_ansi "" esc in
@@ -261,17 +262,5 @@ let () =
         | _ -> decorate (" (" ^ string_of_nix nix ^ ")")
             |> foreground Blue
             |> append_to_ansi left esc in
-
-    let left = decorate " > "
-        |> foreground BrightRed
-        |> append_to_ansi left esc in
-    let time_string () =
-        let open Unix in
-        let tm = localtime (time ()) in
-        Printf.sprintf "%02d:%02d:%02d" tm.tm_hour tm.tm_min tm.tm_sec
-        in
-    let time = decorate (time_string ())
-        |> foreground grey
-        |> append_to_ansi "" esc in
-
-    print_prompt left time;
+    let left = left ^ " " ^ fish in
+    print_prompt left "Hello, world!"
