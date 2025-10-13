@@ -2,11 +2,10 @@ open Decorated_string
 open Utils
 open Mods
 
-let () =
+let build_left () =
     let cwd = cwd_abbreviated () in
     let git = git_info () in
     let nix = detect_nix_shell () in
-
     let esc = get_esc () in
 
     let grey = Hex "0x545454" in
@@ -40,9 +39,57 @@ let () =
             |> foreground BrightBlue
             |> append_to_ansi left esc
     in
-    let left = decorate " ⋊> " |> foreground (Hex "0xDDDDFF") |> append_to_ansi left esc in
+    decorate " ⋊> " |> foreground (Hex "0xDDDDFF") |> append_to_ansi left esc
 
-    (* let right = decorate (time ()) |> foreground grey |> append_to_ansi "" esc in *)
-    let right = "Testing. Testing!" in
+let build_right () =
+    let esc = get_esc () in
+    decorate (time ()) |> foreground (Hex "0x919191") |> append_to_ansi "" esc
 
-    print_prompt left right
+(* Why was this suggested? *)
+(* let shell_double_quote s = *)
+(*   let b = Buffer.create (String.length s + 2) in *)
+(*   Buffer.add_char b '"'; *)
+(*   String.iter *)
+(*     (fun c -> *)
+(*       match c with *)
+(*       | '\\' | '"' | '$' | '`' -> Buffer.add_char b '\\'; Buffer.add_char b c *)
+(*       | _ -> Buffer.add_char b c) *)
+(*     s; *)
+(*   Buffer.add_char b '"'; *)
+(*   Buffer.contents b *)
+
+let zsh_init_script () =
+    (* let self = shell_double_quote Sys.argv.(0) in *)
+    let self = Sys.argv.(0) in ""
+    ^  "# glowstick init for zsh                                          \n"
+    ^  "prompt_glowstick_precmd() {                                       \n"
+    ^  "  local left right                                                \n"
+    ^ ("  left=\"$(GLOWSTICK_SHELL_TYPE=zsh " ^ self ^ " prompt left)\"   \n")
+    ^ ("  right=\"$(GLOWSTICK_SHELL_TYPE=zsh " ^ self ^ " prompt right)\" \n")
+    ^  "  PROMPT=\"$left\"                                                \n"
+    ^  "  RPROMPT=\"$right\"                                              \n"
+    ^  "}                                                                 \n"
+    ^  "autoload -Uz add-zsh-hook\n"
+    ^  "add-zsh-hook precmd prompt_glowstick_precmd\n"
+
+let bash_init_script () =
+    (* let self = shell_double_quote Sys.argv.(0) in *)
+    let self = Sys.argv.(0) in ""
+    ^  "# glowstick init for bash                                         \n"
+    ^  "__glowstick_prompt_command() {                                    \n"
+    ^ ("  PS1=\"$(GLOWSTICK_SHELL_TYPE=bash " ^ self ^ " prompt left)\"   \n")
+    ^  "}                                                                 \n"
+    ^  "if [[ -n \"$PROMPT_COMMAND\" ]]; then                             \n"
+    ^  "  PROMPT_COMMAND=\"__glowstick_prompt_command; $PROMPT_COMMAND\"  \n"
+    ^  "else                                                              \n"
+    ^  "  PROMPT_COMMAND=__glowstick_prompt_command                       \n"
+    ^  "fi                                                                \n"
+
+let () =
+    let argv = Array.to_list Sys.argv in
+    match argv with
+    | _ :: [ "init"; "zsh" ] -> print_string (zsh_init_script ())
+    | _ :: [ "init"; "bash" ] -> print_string (bash_init_script ())
+    | _ :: [ "prompt"; "left" ] -> print_string (build_left ())
+    | _ :: [ "prompt"; "right" ] -> print_string (build_right ())
+    | _ -> (* Fallback *) print_string "glowstick has failed: Invalid arguments."

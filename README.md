@@ -9,22 +9,24 @@ With that being said, feel free to reach out for suggestions or wanted
 features.
 
 ## Usage
-The program is an executable which simply prints out a terminal-prompt.
-Here are some common ways, in common shells, to apply glowstick:
-```zshrc
-function precmd () {
-    prompt=$(GLOWSTICK_SHELL_TYPE=zsh ~/path/to/executable)
-}
+Initialize via eval:
+
+- zsh (`~/.zshrc`):
+```
+eval "$(/path/to/executable init zsh)"
 ```
 
-```bashrc
-PS1=$(GLOWSTICK_SHELL_TYPE=bash ~/path/to/executable)
+- bash (`~/.bashrc`):
+```
+eval "$(/path/to/executable init bash)"
 ```
 
-These are currently the only two supported shells, but create a PR
-if you want to add other shells. It should be straightforward, in theory...
-as the only difference between the shells are how ANSI-escape codes are escaped.
-Zsh uses a combination of `%` and `{` while bash uses multiple `[`.
+Replace `/path/to/executable` with the full path or the command name if it is in your `PATH`.
+
+Notes:
+- zsh uses native `PROMPT` and `RPROMPT` for stable left/right prompts.
+- bash sets `PS1` via `PROMPT_COMMAND` and does not provide a native right prompt.
+  The left prompt is rendered with correct escape-wrapping to avoid redraw issues.
 
 ## Install
 If you use nix, simply run:
