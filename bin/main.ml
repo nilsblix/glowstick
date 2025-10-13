@@ -245,7 +245,7 @@ let () =
             |> foreground Green
             |> append_to_ansi (left ^ " on ") esc in
     let left = match nix with
-        | NotInNixShell -> ""
+        | NotInNixShell -> left
         | _ -> decorate (" (" ^ string_of_nix nix ^ ")")
             |> foreground Blue
             |> append_to_ansi left esc in
