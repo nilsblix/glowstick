@@ -8,58 +8,31 @@ let build_left () =
     let nix = detect_nix_shell () in
     let esc = get_esc () in
 
-    let grey = Hex "0x545454" in
-
-    let left = "" in
-    let left =
-        decorate (left ^ cwd)
+    (decorate cwd
         |> foreground (Hex "0xC9D3E1")
-        |> append_to_ansi "" esc
-    in
-
-    let left =
-        match (git, nix) with
-        | NotInGitRepo, NotInNixShell -> left
-        | _ -> left ^ (decorate " : " |> foreground grey |> append_to_ansi "" esc)
-    in
-
-    let left =
-        match git with
-        | NotInGitRepo -> left
-        | _ ->
-            decorate (string_of_git git)
+        |> append_to_ansi "" esc)
+    ^ (match (git, nix) with
+        | NotInGitRepo, NotInNixShell -> ""
+        | _ -> decorate " >> "
+            |> foreground (Hex "0x545454")
+            |> append_to_ansi "" esc)
+    ^ (match git with
+        | NotInGitRepo -> ""
+        | _ -> decorate (string_of_git git)
             |> foreground Yellow
-            |> append_to_ansi left esc
-    in
-    let left =
-        match nix with
-        | NotInNixShell -> left
-        | _ ->
-            decorate (" (" ^ string_of_nix nix ^ ")")
+            |> append_to_ansi "" esc)
+    ^ (match nix with
+        | NotInNixShell -> ""
+        | _ -> decorate (" <" ^ string_of_nix nix ^ ">")
             |> foreground BrightBlue
-            |> append_to_ansi left esc
-    in
-    decorate " ⋊> " |> foreground (Hex "0xDDDDFF") |> append_to_ansi left esc
+            |> append_to_ansi "" esc)
+    ^ (decorate " ⋊> " |> foreground (Hex "0xDDDDFF") |> append_to_ansi "" esc)
 
 let build_right () =
     let esc = get_esc () in
-    decorate (time ()) |> foreground (Hex "0x919191") |> append_to_ansi "" esc
-
-(* Why was this suggested? *)
-(* let shell_double_quote s = *)
-(*   let b = Buffer.create (String.length s + 2) in *)
-(*   Buffer.add_char b '"'; *)
-(*   String.iter *)
-(*     (fun c -> *)
-(*       match c with *)
-(*       | '\\' | '"' | '$' | '`' -> Buffer.add_char b '\\'; Buffer.add_char b c *)
-(*       | _ -> Buffer.add_char b c) *)
-(*     s; *)
-(*   Buffer.add_char b '"'; *)
-(*   Buffer.contents b *)
+    decorate (time ()) |> foreground (Hex "0x545454") |> append_to_ansi "" esc
 
 let zsh_init_script () =
-    (* let self = shell_double_quote Sys.argv.(0) in *)
     let self = Sys.argv.(0) in ""
     ^  "# glowstick init for zsh                                          \n"
     ^  "prompt_glowstick_precmd() {                                       \n"
@@ -73,7 +46,6 @@ let zsh_init_script () =
     ^  "add-zsh-hook precmd prompt_glowstick_precmd\n"
 
 let bash_init_script () =
-    (* let self = shell_double_quote Sys.argv.(0) in *)
     let self = Sys.argv.(0) in ""
     ^  "# glowstick init for bash                                         \n"
     ^  "__glowstick_prompt_command() {                                    \n"
