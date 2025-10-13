@@ -233,22 +233,35 @@ let () =
 
     let esc = get_esc () in
 
+    let grey = Hex "0x545454" in
+
+
     let left = decorate "⋊> "
         |> foreground (Hex "0xDDDDFF")
         |> append_to_ansi "" esc in
     let left = decorate (left ^ cwd)
         |> foreground (Hex "0xBCBBA7")
         |> append_to_ansi "" esc in
+
+    let left = match (git, nix) with
+        | (NotInGitRepo, NotInNixShell) -> left
+        | _ ->
+            left ^ (decorate  " : "
+            |> foreground grey
+            |> append_to_ansi "" esc)
+        in
+
     let left = match git with
         | NotInGitRepo -> left
         | _ -> decorate (string_of_git git)
-            |> foreground Green
-            |> append_to_ansi (left ^ " on ") esc in
+            |> foreground Yellow
+            |> append_to_ansi left esc in
     let left = match nix with
         | NotInNixShell -> left
         | _ -> decorate (" (" ^ string_of_nix nix ^ ")")
             |> foreground Blue
             |> append_to_ansi left esc in
+
     let left = decorate " > "
         |> foreground BrightRed
         |> append_to_ansi left esc in
@@ -258,7 +271,7 @@ let () =
         Printf.sprintf "%02d:%02d:%02d" tm.tm_hour tm.tm_min tm.tm_sec
         in
     let time = decorate (time_string ())
-        |> foreground (Hex "0x545454")
+        |> foreground grey
         |> append_to_ansi "" esc in
 
     print_prompt left time;
