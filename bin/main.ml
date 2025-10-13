@@ -13,12 +13,12 @@ let build_left () =
         |> append_to_ansi "" esc)
     ^ (match (git, nix) with
         | NotInGitRepo, NotInNixShell -> ""
-        | _ -> decorate " >> "
+        | _ -> decorate " >>"
             |> foreground (Hex "0x545454")
             |> append_to_ansi "" esc)
     ^ (match git with
         | NotInGitRepo -> ""
-        | _ -> decorate (string_of_git git)
+        | _ -> decorate (" " ^ string_of_git git)
             |> foreground Yellow
             |> append_to_ansi "" esc)
     ^ (match nix with
