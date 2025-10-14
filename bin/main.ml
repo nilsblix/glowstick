@@ -1,36 +1,8 @@
-open Decorated_string
-open Utils
-open Mods
-
 let build_left () =
-    let cwd = cwd_abbreviated () in
-    let git = git_info () in
-    let nix = detect_nix_shell () in
-    let esc = get_esc () in
-
-    (decorate cwd
-        |> foreground (Hex "0xC9D3E1")
-        |> append_to_ansi "" esc)
-    ^ (match (git, nix) with
-        | NotInGitRepo, NotInNixShell -> ""
-        | _ -> decorate " >>"
-            |> foreground (Hex "0x545454")
-            |> append_to_ansi "" esc)
-    ^ (match git with
-        | NotInGitRepo -> ""
-        | _ -> decorate (" " ^ string_of_git git)
-            |> foreground Yellow
-            |> append_to_ansi "" esc)
-    ^ (match nix with
-        | NotInNixShell -> ""
-        | _ -> decorate (" <" ^ string_of_nix nix ^ ">")
-            |> foreground BrightBlue
-            |> append_to_ansi "" esc)
-    ^ (decorate " ⋊> " |> foreground (Hex "0xDDDDFF") |> append_to_ansi "" esc)
+    Themes.Tomita.left ()
 
 let build_right () =
-    let esc = get_esc () in
-    decorate (time ()) |> foreground (Hex "0x545454") |> append_to_ansi "" esc
+    Themes.Tomita.right ()
 
 let zsh_init_script () =
     let self = Sys.argv.(0) in ""

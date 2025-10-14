@@ -46,9 +46,22 @@ let abbreviate_segments segments =
     | [] -> ""
     | last :: rest_rev ->
         let rest = List.rev rest_rev in
-        let abbrev_rest =
-            List.map (fun s -> if s = "" then "" else String.sub s 0 1) rest
+        let abbrev_seg s =
+            if s = "" then ""
+            else
+                let len = String.length s in
+                let is_alpha c =
+                    (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+                in
+                let rec find i =
+                    if i >= len then 1
+                    else if is_alpha s.[i] then i + 1
+                    else find (i + 1)
+                in
+                let n = find 0 in
+                String.sub s 0 n
         in
+        let abbrev_rest = List.map abbrev_seg rest in
         String.concat "/" (abbrev_rest @ [ last ])
 
 let get_esc () =
