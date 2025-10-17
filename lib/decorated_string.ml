@@ -66,40 +66,48 @@ let rec color_to_ansi_bg color = match color with
         "48;2;" ^ i r ^ ";" ^ i g ^ ";" ^ i b
     | Hex s -> color_to_ansi_bg (Rgb (rgb_of_hex (int_of_string s)))
 
-type decorated_string =
-    | Bold of decorated_string
-    | Foreground of (decorated_string * color)
-    | Background of (decorated_string * color)
-    | Underlined of decorated_string
-    | Italic of decorated_string
-    | Default of string
+type t =
+    | Bold of t
+    | Foreground of (t * color)
+    | Background of (t * color)
+    | Underlined of t
+    | Italic of t
+    | Text of string
 
-let bold dec = Bold dec
-let foreground col dec = Foreground (dec, col)
-let background col dec = Background (dec, col)
-let underlined dec = Underlined dec
-let italic dec = Italic dec
-let decorate s = Default s
+let text s = Text s
+let bold d = Bold d
+let foreground col d = Foreground (d, col)
+let background col d = Background (d, col)
+let underlined d = Underlined d
+let italic d = Italic d
 
-let rec append_to_ansi s escape_fun dec = match dec with
-    | Bold inner ->
-        let s = s ^ escape_fun "\x1b[1m" in
-        let s = append_to_ansi s escape_fun inner in
-        s ^ escape_fun "\x1b[22m"
-    | Foreground (inner, color) ->
-        let s = s ^ escape_fun ("\x1b[" ^ color_to_ansi color ^ "m") in
-        let s = append_to_ansi s escape_fun inner in
-        s ^ escape_fun "\x1b[39m"
-    | Background (inner, color) ->
-        let s = s ^ escape_fun ("\x1b[" ^ color_to_ansi_bg color ^ "m") in
-        let s = append_to_ansi s escape_fun inner in
-        s ^ escape_fun "\x1b[49m"
-    | Underlined inner ->
-        let s = s ^ escape_fun "\x1b[4m" in
-        let s = append_to_ansi s escape_fun inner in
-        s ^ escape_fun "\x1b[24m"
-    | Italic inner ->
-        let s = s ^ escape_fun "\x1b[3m" in
-        let s = append_to_ansi s escape_fun inner in
-        s ^ escape_fun "\x1b[23m"
-    | Default text -> s ^ text
+(* Backwards-friendly alias; prefer [text]. *)
+let decorate s = text s
+
+let render ?esc dec =
+    let escape_fun = match esc with Some f -> f | None -> Utils.get_esc () in
+    let rec aux acc d =
+        match d with
+        | Bold inner ->
+            let acc = acc ^ escape_fun "\x1b[1m" in
+            let acc = aux acc inner in
+            acc ^ escape_fun "\x1b[22m"
+        | Foreground (inner, color) ->
+            let acc = acc ^ escape_fun ("\x1b[" ^ color_to_ansi color ^ "m") in
+            let acc = aux acc inner in
+            acc ^ escape_fun "\x1b[39m"
+        | Background (inner, color) ->
+            let acc = acc ^ escape_fun ("\x1b[" ^ color_to_ansi_bg color ^ "m") in
+            let acc = aux acc inner in
+            acc ^ escape_fun "\x1b[49m"
+        | Underlined inner ->
+            let acc = acc ^ escape_fun "\x1b[4m" in
+            let acc = aux acc inner in
+            acc ^ escape_fun "\x1b[24m"
+        | Italic inner ->
+            let acc = acc ^ escape_fun "\x1b[3m" in
+            let acc = aux acc inner in
+            acc ^ escape_fun "\x1b[23m"
+        | Text s -> acc ^ s
+    in
+    aux "" dec

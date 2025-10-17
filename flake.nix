@@ -29,6 +29,7 @@
                         pkgs.ocamlPackages.utop
                         pkgs.ocamlPackages.ocaml
                         pkgs.ocamlPackages.dune_3
+                        pkgs.ocamlPackages.ocaml-lsp
                         pkgs.ocamlformat
                     ];
                 };
