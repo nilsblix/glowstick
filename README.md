@@ -31,10 +31,10 @@ prompt. The left prompt is rendered with correct escape-wrapping to avoid
 redraw issues.
 
 Manual rendering (useful for testing):
-- Left prompt:  ``GLOWSTICK_SHELL_TYPE=zsh /path/to/executable prompt left tomita``
-- Right prompt: ``GLOWSTICK_SHELL_TYPE=zsh /path/to/executable prompt right tomita``
+- Left prompt:  ``__GLOWSTICK_SHELL_TYPE=zsh /path/to/executable prompt left tomita``
+- Right prompt: ``__GLOWSTICK_SHELL_TYPE=zsh /path/to/executable prompt right tomita``
 
-`GLOWSTICK_SHELL_TYPE` can be `zsh` or `bash` to ensure escape sequences are
+`__GLOWSTICK_SHELL_TYPE` can be `zsh` or `bash` to ensure escape sequences are
 correctly wrapped for the target shell. The init scripts set this
 automatically.
 

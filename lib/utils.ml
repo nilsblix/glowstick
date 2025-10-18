@@ -66,7 +66,7 @@ let abbreviate_segments segments =
 
 let get_esc () =
     let default = fun x -> x in
-    let shell_opt = Sys.getenv_opt "GLOWSTICK_SHELL_TYPE" in
+    let shell_opt = Sys.getenv_opt "__GLOWSTICK_SHELL_TYPE" in
     match shell_opt with
     | None -> default
     | Some s -> (
