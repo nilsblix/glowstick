@@ -16,7 +16,7 @@ type color =
     | BrightWhite
     | BrightBlack
     | Rgb of (int * int * int)
-    | Hex of string
+    | Hex of int
 
 let rgb_of_hex n =
     let r = (n lsr 16) land 0xFF in
@@ -43,7 +43,7 @@ let rec color_to_ansi color = match color with
     | BrightWhite   -> "97"
     | Rgb (r, g, b) -> let i = string_of_int in
         "38;2;" ^ i r ^ ";" ^ i g ^ ";" ^ i b
-    | Hex s -> color_to_ansi (Rgb (rgb_of_hex (int_of_string s)))
+    | Hex n -> color_to_ansi (Rgb (rgb_of_hex n))
 
 let rec color_to_ansi_bg color = match color with
     | Black         -> "40"
@@ -64,7 +64,7 @@ let rec color_to_ansi_bg color = match color with
     | BrightWhite   -> "107"
     | Rgb (r, g, b) -> let i = string_of_int in
         "48;2;" ^ i r ^ ";" ^ i g ^ ";" ^ i b
-    | Hex s -> color_to_ansi_bg (Rgb (rgb_of_hex (int_of_string s)))
+    | Hex n -> color_to_ansi_bg (Rgb (rgb_of_hex n))
 
 type t =
     | Bold of t
@@ -80,9 +80,6 @@ let foreground col d = Foreground (d, col)
 let background col d = Background (d, col)
 let underlined d = Underlined d
 let italic d = Italic d
-
-(* Backwards-friendly alias; prefer [text]. *)
-let decorate s = text s
 
 let render ?esc dec =
     let escape_fun = match esc with Some f -> f | None -> Utils.get_esc () in

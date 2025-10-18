@@ -1,6 +1,4 @@
 (executable
  (name main)
  (public_name main)
- (libraries decorated unix)
- (flags
-  (:standard -warn-error -26-32)))
+ (libraries decorated unix))

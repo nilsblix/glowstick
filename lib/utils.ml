@@ -104,28 +104,3 @@ let visible_length (s : string) : int =
             loop (i + 1) (acc + 1)
     in
     loop 0 0
-
-let print_prompt (left : string) (right : string) : unit =
-    let esc = get_esc () in
-    let left_w = visible_length left in
-    let right_w = visible_length right in
-    let cols =
-        match Sys.getenv_opt "COLUMNS" with
-        | Some s -> (try max 1 (int_of_string s) with _ -> 80)
-        | None -> 80
-    in
-    (* Always print the left, then clear to end of line to avoid leftover from a
-     previous prompt repaint. *)
-    print_string left;
-    print_string (esc "\x1b[K");
-    let can_show_right = right <> "" && left_w + 1 + right_w < cols in
-    if can_show_right then (
-        let start_col = max 0 (cols - right_w) in
-        (* Save cursor, return to column 0, move to right start, print right,
-       clear any remainder, restore cursor. All movement is non-printing. *)
-        print_string (esc "\x1b[s");
-        print_string (esc "\r");
-        print_string (esc (Printf.sprintf "\x1b[%dC" start_col));
-        print_string right;
-        print_string (esc "\x1b[K");
-        print_string (esc "\x1b[u"))

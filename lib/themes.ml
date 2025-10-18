@@ -10,7 +10,7 @@ end
 module Sushi : Theme = struct
     let red = Red
     let yellow = Yellow
-    let grey = Hex "0x676767"
+    let grey = Hex 0x676767
 
     let wrap s col esc =
         (text "(" |> foreground col |> render ~esc)
@@ -43,10 +43,10 @@ module Sushi : Theme = struct
 end
 
 module Tomita : Theme = struct
-    let green = Hex "0x008B67"
-    let white = Hex "0xFFFFFF"
-    let yellow = Hex "0xE2D351"
-    let grey = Hex "0x676767"
+    let green = Hex 0x008B67
+    let white = Hex 0xFFFFFF
+    let yellow = Hex 0xE2D351
+    let grey = Hex 0x676767
 
     let left () =
         let cwd = cwd_abbreviated () in
@@ -73,11 +73,11 @@ module Tomita : Theme = struct
 end
 
 module Agnoster : Theme = struct
-    let blue = Hex "0x268BD2"
-    let cyan = Hex "0x2AA198"
-    let yellow = Hex "0xB58900"
-    let white = Hex "0xFFFFFF"
-    let grey = Hex "0x666666"
+    let blue = Hex 0x268BD2
+    let cyan = Hex 0x2AA198
+    let yellow = Hex 0xB58900
+    let white = Hex 0xFFFFFF
+    let grey = Hex 0x666666
 
     let left () =
         let esc = get_esc () in
@@ -105,10 +105,10 @@ module Agnoster : Theme = struct
 end
 
 module BobTheFish : Theme = struct
-    let blue = Hex "0x4F97D7"
-    let magenta = Hex "0xC678DD"
-    let green = Hex "0x98C379"
-    let grey = Hex "0x676767"
+    let blue = Hex 0x4F97D7
+    let magenta = Hex 0xC678DD
+    let green = Hex 0x98C379
+    let grey = Hex 0x676767
 
     let left () =
         let esc = get_esc () in
@@ -131,9 +131,9 @@ module BobTheFish : Theme = struct
 end
 
 module Lambda : Theme = struct
-    let purple = Hex "0xA277FF"
-    let gold = Hex "0xFFCA3A"
-    let grey = Hex "0x676767"
+    let purple = Hex 0xA277FF
+    let gold = Hex 0xFFCA3A
+    let grey = Hex 0x676767
 
     let left () =
         let esc = get_esc () in
@@ -153,8 +153,8 @@ module Lambda : Theme = struct
 end
 
 module Minimal : Theme = struct
-    let green = Hex "0x00C853"
-    let grey = Hex "0x676767"
+    let green = Hex 0x00C853
+    let grey = Hex 0x676767
 
     let left () =
         let esc = get_esc () in
