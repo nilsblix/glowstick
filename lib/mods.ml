@@ -14,7 +14,11 @@ let cwd () =
         match remove_prefix home cwd with Some path -> "~" ^ path | None -> cwd)
     | _ -> cwd
 
-let cwd_basename () = Filename.basename (Sys.getcwd ())
+let cwd_basename () =
+    let cwd = Sys.getcwd () in
+    match Sys.getenv_opt "HOME" with
+    | Some home when cwd = home -> "~"
+    | _ -> Filename.basename cwd
 
 let cwd_abbreviated () =
     let cwd = Sys.getcwd () in
