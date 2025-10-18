@@ -22,7 +22,7 @@ eval "$(/path/to/executable init bash bobthefish)"
 ```
 
 Replace `/path/to/executable` with the full path or a command in your `PATH`,
-and replace the theme (e.g. `tomita`, `bobthefish`) with your preferred theme.
+and replace the theme (e.g. `macos`, `tomita`) with your preferred theme.
 
 Notes:
 - zsh uses native `PROMPT` and `RPROMPT` for stable left/right prompts.
@@ -39,13 +39,12 @@ correctly wrapped for the target shell. The init scripts set this
 automatically.
 
 ### Themes
-Available themes (Oh My Fish–inspired):
+Available themes: (some are oh-my-fish inspired)
+- `macos`
 - `sushi`
 - `tomita`
 - `agnoster`
 - `bobthefish` (alias: `bob_the_fish`)
-- `lambda`
-- `minimal`
 
 ## Install
 If you use nix, simply run:

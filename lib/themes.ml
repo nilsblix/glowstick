@@ -7,6 +7,32 @@ module type Theme = sig
     val right : unit -> string
 end
 
+module Macos : Theme = struct
+    let fg = Hex 0xE0E0E0
+    let grey = Hex 0x676767
+
+    let left () =
+        let esc = get_esc () in
+        let git = git_info () in
+        (text (user_name () ^ "@" ^ host_name () ^ " " ^ cwd_basename ()
+        ^ (match git with | NotInGitRepo -> "" | _ ->
+            " (" ^ string_of_git git ^ ")"))
+        |> foreground fg
+        |> render ~esc)
+        ^ (text " ⋊> " |> foreground Yellow |> render ~esc)
+
+    let right () =
+        let nix = detect_nix_shell () in
+        let time = time () in
+        let esc = get_esc () in
+        (match nix with
+        | NotInNixShell -> ""
+        | _ -> text ("(nix: " ^ string_of_nix nix ^ ") ")
+                |> foreground grey
+                |> render ~esc)
+        ^ (text time |> foreground grey |> render ~esc)
+end
+
 module Sushi : Theme = struct
     let red = Red
     let yellow = Yellow
@@ -85,8 +111,7 @@ module Agnoster : Theme = struct
         let cwd = cwd_abbreviated () in
         let git = git_info () in
         (text userhost |> bold |> foreground white |> background blue |> render ~esc)
-        ^ (text " " |> background blue |> render ~esc)
-        ^ (text cwd |> foreground cyan |> render ~esc)
+        ^ (text (" " ^ cwd) |> foreground cyan |> render ~esc)
         ^ (match git with
             | NotInGitRepo -> ""
             | _ ->
@@ -130,52 +155,11 @@ module BobTheFish : Theme = struct
         ^ (text t |> foreground grey |> render ~esc)
 end
 
-module Lambda : Theme = struct
-    let purple = Hex 0xA277FF
-    let gold = Hex 0xFFCA3A
-    let grey = Hex 0x676767
-
-    let left () =
-        let esc = get_esc () in
-        let cwd = cwd_abbreviated () in
-        let git = git_info () in
-        (text "λ " |> foreground purple |> render ~esc)
-        ^ (text cwd |> foreground purple |> render ~esc)
-        ^ (match git with
-            | NotInGitRepo -> ""
-            | _ -> text (" (" ^ string_of_git git ^ ")") |> foreground gold |> render ~esc)
-        ^ (text " » " |> foreground purple |> render ~esc)
-
-    let right () =
-        let esc = get_esc () in
-        let t = time () in
-        text t |> foreground grey |> render ~esc
-end
-
-module Minimal : Theme = struct
-    let green = Hex 0x00C853
-    let grey = Hex 0x676767
-
-    let left () =
-        let esc = get_esc () in
-        let cwd = cwd_basename () in
-        (text cwd |> foreground green |> render ~esc)
-        ^ (text " > " |> foreground green |> render ~esc)
-
-    let right () =
-        let esc = get_esc () in
-        let git = git_info () in
-        match git with
-        | NotInGitRepo -> ""
-        | _ -> text (string_of_git git) |> foreground grey |> render ~esc
-end
-
 let match_to_theme s =
   match String.lowercase_ascii s with
+  | "macos" -> Some (Macos.left, Macos.right)
   | "sushi" -> Some (Sushi.left, Sushi.right)
   | "tomita" -> Some (Tomita.left, Tomita.right)
   | "agnoster" -> Some (Agnoster.left, Agnoster.right)
   | "bobthefish" | "bob_the_fish" -> Some (BobTheFish.left, BobTheFish.right)
-  | "lambda" -> Some (Lambda.left, Lambda.right)
-  | "minimal" -> Some (Minimal.left, Minimal.right)
   | _ -> None
