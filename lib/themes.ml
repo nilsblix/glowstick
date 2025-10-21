@@ -7,6 +7,37 @@ module type Theme = sig
     val right : unit -> string
 end
 
+module Current : Theme = struct
+    let start = text " ⋊>"
+        |> foreground (Hex 0x144ac9)
+        |> render ~esc:(get_esc ())
+    let blue_fg = Hex 0x379eed
+    let grey_fg = Hex 0x676767
+
+    let left () =
+        let esc = get_esc () in
+        let git = git_info () in
+        start ^ (text (" " ^ cwd_basename ())
+            |> foreground blue_fg
+            |> render ~esc)
+        ^ (match git with
+        | NotInGitRepo -> ""
+        | _ -> text (" (" ^ string_of_git git ^ ")")
+            |> foreground blue_fg |> render ~esc)
+        ^ " "
+
+    let right () =
+        let nix = detect_nix_shell () in
+        let time = time () in
+        let esc = get_esc () in
+        (match nix with
+        | NotInNixShell -> ""
+        | _ -> text ("(nix: " ^ string_of_nix nix ^ ") ")
+                |> foreground grey_fg
+                |> render ~esc)
+        ^ (text time |> foreground grey_fg |> render ~esc)
+end
+
 module Macos : Theme = struct
     let fg = Hex 0xE0E0E0
     let grey = Hex 0x676767
@@ -157,6 +188,7 @@ end
 
 let match_to_theme s =
   match String.lowercase_ascii s with
+  | "current" -> Some (Current.left, Current.right)
   | "macos" -> Some (Macos.left, Macos.right)
   | "sushi" -> Some (Sushi.left, Sushi.right)
   | "tomita" -> Some (Tomita.left, Tomita.right)

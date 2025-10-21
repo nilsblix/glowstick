@@ -40,6 +40,7 @@ automatically.
 
 ### Themes
 Available themes: (some are oh-my-fish inspired)
+- `current`
 - `macos`
 - `sushi`
 - `tomita`
