@@ -1,10 +1,12 @@
+open Decorated_string
+
 let build_left (theme : string) () = match Themes.match_to_theme theme with
     | Some t -> (fst t) ()
-    | None -> "Glowstick: Unknown left theme. "
+    | None -> text "(!!) Unknown left theme: " |> foreground Red |> render
 
 let build_right (theme : string) () = match Themes.match_to_theme theme with
     | Some t -> (snd t) ()
-    | None -> "Glowstick: Unknown right theme. "
+    | None -> text "(!!) Unknown right theme" |> foreground Red |> render
 
 let zsh_init_script theme () =
     let self = Sys.argv.(0) in ""

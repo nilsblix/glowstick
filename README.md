@@ -40,12 +40,11 @@ automatically.
 
 ### Themes
 Available themes: (some are oh-my-fish inspired)
+- `robby`
 - `current`
 - `macos`
 - `sushi`
 - `tomita`
-- `agnoster`
-- `bobthefish` (alias: `bob_the_fish`)
 
 ## Install
 If you use nix, simply run:
