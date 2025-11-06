@@ -11,7 +11,7 @@ module Robby : Theme = struct
     let start = text "⋊> "
         |> foreground Blue
         |> render ~esc:(get_esc ())
-    let purple = Hex 0x5e49bf
+    let purple = Hex 0x6f5ad6
     let grey = Hex 0x676767
 
     let left () =
