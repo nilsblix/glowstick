@@ -7,6 +7,37 @@ module type Theme = sig
     val right : unit -> string
 end
 
+module NixIntro : Theme = struct
+    let start = text "⋊> "
+        |> foreground Blue
+        |> render ~esc:(get_esc ())
+    let grey = Hex 0x676767
+    let surround = Hex 0x818181
+
+    let left () =
+        let esc = get_esc () in
+        let git = git_info () in
+        let nix = detect_nix_shell () in
+        start
+        ^ (text (cwd_basename ()) |> foreground (Hex 0xEEFEFF) |> bold |> render ~esc)
+        ^ (match git with
+            | NotInGitRepo -> ""
+            | _ ->
+                " "
+                ^ (text "git:(" |> foreground surround |> render ~esc)
+                ^ (text (string_of_git git) |> foreground BrightRed |> render ~esc)
+                ^ (text ")" |> foreground surround |> render ~esc))
+        ^ (match nix with
+            | NotInNixShell -> ""
+            | _ ->
+                " "
+                ^ (text "nix:(" |> foreground surround |> render ~esc)
+                ^ (text (string_of_nix nix) |> foreground Yellow |> render ~esc)
+                ^ (text ")" |> foreground surround |> render ~esc))
+        ^ " "
+    let right () = text (time ()) |> foreground grey |> render
+end
+
 module Robby : Theme = struct
     let start = text "⋊> "
         |> foreground Blue
@@ -36,7 +67,6 @@ module Robby : Theme = struct
                 ^ (text ")" |> foreground purple |> bold |> render ~esc))
         ^ " "
     let right () = text (time ()) |> foreground grey |> render
-
 end
 
 module Current : Theme = struct
@@ -163,6 +193,7 @@ end
 
 let match_to_theme s =
     match String.lowercase_ascii s with
+    | "nix-intro" -> Some (NixIntro.left, NixIntro.right)
     | "robby" -> Some (Robby.left, Robby.right)
     | "current" -> Some (Current.left, Current.right)
     | "macos" -> Some (Macos.left, Macos.right)

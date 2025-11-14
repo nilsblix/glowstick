@@ -36,8 +36,8 @@ let bash_init_script theme () =
 let () =
     let argv = Array.to_list Sys.argv in
     match argv with
-    | _ :: [ "init"; "zsh"; theme ] -> print_string (zsh_init_script theme ())
-    | _ :: [ "init"; "bash"; theme] -> print_string (bash_init_script theme ())
+    | _ :: [ "zsh"; theme ] -> print_string (zsh_init_script theme ())
+    | _ :: [ "bash"; theme] -> print_string (bash_init_script theme ())
     | _ :: [ "prompt"; "left"; theme ] -> print_string (build_left theme ())
     | _ :: [ "prompt"; "right"; theme ] -> print_string (build_right theme ())
     | _ -> (* Fallback *) print_string "glowstick has failed: Invalid arguments."
