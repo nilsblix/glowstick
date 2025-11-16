@@ -11,8 +11,8 @@ module NixIntro : Theme = struct
     let start = text "⋊> "
         |> foreground Blue
         |> render ~esc:(get_esc ())
+    let paren = Hex 0x688eb3
     let grey = Hex 0x676767
-    let surround = Hex 0x818181
 
     let left () =
         let esc = get_esc () in
@@ -24,16 +24,16 @@ module NixIntro : Theme = struct
             | NotInGitRepo -> ""
             | _ ->
                 " "
-                ^ (text "git:(" |> foreground surround |> render ~esc)
+                ^ (text "git:(" |> foreground paren |> render ~esc)
                 ^ (text (string_of_git git) |> foreground BrightRed |> render ~esc)
-                ^ (text ")" |> foreground surround |> render ~esc))
+                ^ (text ")" |> foreground paren |> render ~esc))
         ^ (match nix with
             | NotInNixShell -> ""
             | _ ->
                 " "
-                ^ (text "nix:(" |> foreground surround |> render ~esc)
-                ^ (text (string_of_nix nix) |> foreground Yellow |> render ~esc)
-                ^ (text ")" |> foreground surround |> render ~esc))
+                ^ (text "nix:(" |> foreground paren |> render ~esc)
+                ^ (text (string_of_nix nix) |> foreground Cyan |> render ~esc)
+                ^ (text ")" |> foreground paren |> render ~esc))
         ^ " "
     let right () = text (time ()) |> foreground grey |> render
 end
