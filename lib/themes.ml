@@ -7,6 +7,30 @@ module type Theme = sig
     val right : unit -> string
 end
 
+module Ham : Theme = struct
+    let fg = Hex 0xE0E0E0
+    let grey = Hex 0x676767
+    let paren = Hex 0x688eb3
+
+    let left () =
+        let esc = get_esc () in
+        let git = git_info () in
+        let nix = detect_nix_shell () in
+        " "
+        ^ (text (cwd_basename ()) |> foreground (Hex 0xCDDDFF) |> render ~esc)
+        ^ (match git with
+            | NotInGitRepo -> ""
+            | _ ->
+                text (" (" ^ string_of_git git ^ ")") |> foreground Red |> render ~esc)
+        ^ (match nix with
+            | NotInNixShell -> ""
+            | _ ->
+                text (" (" ^ string_of_nix nix ^ ")") |> foreground (Hex 0x688eb3) |> render ~esc)
+        ^ (text " ⋊> " |> foreground Yellow |> render ~esc)
+
+    let right () = ""
+end
+
 module NixIntro : Theme = struct
     let start = text "⋊> "
         |> foreground Blue
@@ -193,6 +217,7 @@ end
 
 let match_to_theme s =
     match String.lowercase_ascii s with
+    | "ham" -> Some (Ham.left, Ham.right)
     | "nix-intro" -> Some (NixIntro.left, NixIntro.right)
     | "robby" -> Some (Robby.left, Robby.right)
     | "current" -> Some (Current.left, Current.right)
