@@ -7,26 +7,45 @@ module type Theme = sig
     val right : unit -> string
 end
 
-module Ham : Theme = struct
-    let fg = Hex 0xE0E0E0
-    let grey = Hex 0x676767
-    let paren = Hex 0x688eb3
+module Vwm : Theme = struct
+    let cwd x = x |> foreground Cyan |> bold
+    let extras x = x |> foreground Blue |> bold
+
+    let git_start esc = text " git:(" |> extras |> render ~esc
+    let git_end esc = text ")" |> extras |> render ~esc
+
+    let nix_start esc = text " nix:(" |> extras |> render ~esc
+    let nix_end esc = text ")" |> extras |> render ~esc
 
     let left () =
         let esc = get_esc () in
+
+        let status = last_status () in
+        let status_style x = match status with
+            | Fail -> (x |> foreground Red)
+            | Success -> (x |> foreground Green)
+            in
+
         let git = git_info () in
         let nix = detect_nix_shell () in
-        " "
-        ^ (text (cwd_basename ()) |> foreground (Hex 0xCDDDFF) |> render ~esc)
+
+        (text "\u{f178}  " |> status_style |> render ~esc)
+        ^ (text (cwd_basename ()) |> cwd |> render ~esc)
         ^ (match git with
             | NotInGitRepo -> ""
             | _ ->
-                text (" (" ^ string_of_git git ^ ")") |> foreground Red |> render ~esc)
+                git_start esc
+                ^ (text (string_of_git git) |> foreground Red |> render ~esc)
+                ^ git_end esc
+        )
         ^ (match nix with
             | NotInNixShell -> ""
             | _ ->
-                text (" (" ^ string_of_nix nix ^ ")") |> foreground (Hex 0x688eb3) |> render ~esc)
-        ^ (text " ⋊> " |> foreground Yellow |> render ~esc)
+                nix_start esc
+                ^ (text (string_of_nix nix) |> foreground Magenta |> render ~esc)
+                ^ nix_end esc
+            )
+        ^ " "
 
     let right () = ""
 end
@@ -93,98 +112,6 @@ module Robby : Theme = struct
     let right () = text (time ()) |> foreground grey |> render
 end
 
-module Current : Theme = struct
-    let start = text " ⋊>"
-        |> foreground (Hex 0x144ac9)
-        |> render ~esc:(get_esc ())
-    let blue_fg = Hex 0x379eed
-    let grey_fg = Hex 0x676767
-
-    let left () =
-        let esc = get_esc () in
-        let git = git_info () in
-        start ^ (text (" " ^ cwd_basename ())
-            |> foreground blue_fg
-            |> render ~esc)
-        ^ (match git with
-            | NotInGitRepo -> ""
-            | _ -> text (" (" ^ string_of_git git ^ ")")
-                |> foreground blue_fg |> render ~esc)
-        ^ " "
-
-    let right () =
-        let nix = detect_nix_shell () in
-        let time = time () in
-        let esc = get_esc () in
-        (match nix with
-            | NotInNixShell -> ""
-            | _ -> text ("(nix: " ^ string_of_nix nix ^ ") ")
-                |> foreground grey_fg
-                |> render ~esc)
-        ^ (text time |> foreground grey_fg |> render ~esc)
-end
-
-module Macos : Theme = struct
-    let fg = Hex 0xE0E0E0
-    let grey = Hex 0x676767
-
-    let left () =
-        let esc = get_esc () in
-        let git = git_info () in
-        (text (user_name () ^ "@" ^ host_name () ^ " " ^ cwd_basename ()
-            ^ (match git with | NotInGitRepo -> "" | _ ->
-                " (" ^ string_of_git git ^ ")"))
-            |> foreground fg
-            |> render ~esc)
-        ^ (text " ⋊> " |> foreground Yellow |> render ~esc)
-
-    let right () =
-        let nix = detect_nix_shell () in
-        let time = time () in
-        let esc = get_esc () in
-        (match nix with
-            | NotInNixShell -> ""
-            | _ -> text ("(nix: " ^ string_of_nix nix ^ ") ")
-                |> foreground grey
-                |> render ~esc)
-        ^ (text time |> foreground grey |> render ~esc)
-end
-
-module Sushi : Theme = struct
-    let red = Red
-    let yellow = Yellow
-    let grey = Hex 0x676767
-
-    let wrap s col esc =
-        (text "(" |> foreground col |> render ~esc)
-        ^ s
-        ^ (text ")" |> foreground col |> render ~esc)
-
-    let left () =
-        let cwd = cwd_abbreviated () in
-        let esc = get_esc () in
-        wrap (text cwd |> foreground yellow |> render ~esc) red esc
-        ^ (text " λ " |> foreground red |> render ~esc)
-
-    let right () =
-        let git = git_info () in
-        let nix = detect_nix_shell () in
-        let esc = get_esc () in
-        (match git with
-            | NotInGitRepo -> ""
-            | _ -> wrap
-                (text ("git: " ^ string_of_git git) |> foreground grey |> render ~esc)
-                yellow esc)
-        ^ (match git, nix with
-            | NotInGitRepo, _ | _, NotInNixShell -> ""
-            | _ -> " ")
-        ^ (match nix with
-            | NotInNixShell -> ""
-            | _ -> wrap
-                (text ("nix: " ^ string_of_nix nix) |> foreground grey |> render ~esc)
-                yellow esc)
-end
-
 module Tomita : Theme = struct
     let green = Hex 0x008B67
     let white = Hex 0xFFFFFF
@@ -215,13 +142,16 @@ module Tomita : Theme = struct
         ^ (text time |> foreground grey |> render ~esc)
 end
 
+module Default : Theme = struct
+    let left () = user_name () ^ "@" ^ host_name () ^ " " ^ cwd_basename () ^ " %# "
+    let right () = ""
+end
+
 let match_to_theme s =
     match String.lowercase_ascii s with
-    | "ham" -> Some (Ham.left, Ham.right)
+    | "vwm" -> Some (Vwm.left, Vwm.right)
     | "nix-intro" -> Some (NixIntro.left, NixIntro.right)
     | "robby" -> Some (Robby.left, Robby.right)
-    | "current" -> Some (Current.left, Current.right)
-    | "macos" -> Some (Macos.left, Macos.right)
-    | "sushi" -> Some (Sushi.left, Sushi.right)
     | "tomita" -> Some (Tomita.left, Tomita.right)
+    | "default" -> Some (Default.left, Default.right)
     | _ -> None

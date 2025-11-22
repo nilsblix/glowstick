@@ -13,16 +13,16 @@ Initialize via eval (choose a theme):
 
 - zsh (`~/.zshrc`):
 ```
-eval "$(/path/to/executable init zsh tomita)"
+eval "$(/path/to/executable init zsh robby)"
 ```
 
 - bash (`~/.bashrc`):
 ```
-eval "$(/path/to/executable init bash bobthefish)"
+eval "$(/path/to/executable init bash vwm)"
 ```
 
 Replace `/path/to/executable` with the full path or a command in your `PATH`,
-and replace the theme (e.g. `macos`, `tomita`) with your preferred theme.
+and replace the theme (e.g. `robby`, `tomita`) with your preferred theme.
 
 Notes:
 - zsh uses native `PROMPT` and `RPROMPT` for stable left/right prompts.
@@ -39,13 +39,12 @@ correctly wrapped for the target shell. The init scripts set this
 automatically.
 
 ### Themes
-Available themes: (some are oh-my-fish inspired)
+Available themes:
+- `vwm`
 - `nix-intro`
 - `robby`
-- `current`
-- `macos`
-- `sushi`
 - `tomita`
+- `default` (the default macos one)
 
 ## Install
 If you use nix, simply run:

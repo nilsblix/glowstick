@@ -114,3 +114,13 @@ let string_of_nix = function
 let time () =
     let tm = Unix.localtime (Unix.time ()) in
     Printf.sprintf "%02d:%02d:%02d" tm.tm_hour tm.tm_min tm.tm_sec
+
+type status = Success | Fail
+
+let last_status () =
+    match Sys.getenv_opt "__GLOWSTICK_LAST_STATUS" with
+    | Some s -> (
+        match int_of_string s with
+        | 0 -> Success
+        | _ -> Fail)
+    | _ -> Fail

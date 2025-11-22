@@ -12,9 +12,10 @@ let zsh_init_script theme () =
     let self = Sys.argv.(0) in ""
     ^  "# glowstick init for zsh                                          \n"
     ^  "prompt_glowstick_precmd() {                                       \n"
+    ^  "  local last_status=$?                                            \n"
     ^  "  local left right                                                \n"
-    ^ ("  left=\"$(__GLOWSTICK_SHELL_TYPE=zsh " ^ self ^ " prompt left " ^ theme ^ ")\"   \n")
-    ^ ("  right=\"$(__GLOWSTICK_SHELL_TYPE=zsh " ^ self ^ " prompt right " ^ theme ^ ")\" \n")
+    ^ ("  left=\"$(__GLOWSTICK_SHELL_TYPE=zsh __GLOWSTICK_LAST_STATUS=$last_status " ^ self ^ " prompt left " ^ theme ^ ")\"   \n")
+    ^ ("  right=\"$(__GLOWSTICK_SHELL_TYPE=zsh __GLOWSTICK_LAST_STATUS=$last_status " ^ self ^ " prompt right " ^ theme ^ ")\" \n")
     ^  "  PROMPT=\"$left\"                                                \n"
     ^  "  RPROMPT=\"$right\"                                              \n"
     ^  "}                                                                 \n"
@@ -25,7 +26,8 @@ let bash_init_script theme () =
     let self = Sys.argv.(0) in ""
     ^  "# glowstick init for bash                                         \n"
     ^  "__glowstick_prompt_command() {                                    \n"
-    ^ ("  PS1=\"$(__GLOWSTICK_SHELL_TYPE=bash " ^ self ^ " prompt left " ^ theme ^ ")\"   \n")
+    ^  "  local last_status=$?                                            \n"
+    ^ ("  PS1=\"$(__GLOWSTICK_SHELL_TYPE=bash __GLOWSTICK_LAST_STATUS=$last_status " ^ self ^ " prompt left " ^ theme ^ ")\"   \n")
     ^  "}                                                                 \n"
     ^  "if [[ -n \"$PROMPT_COMMAND\" ]]; then                             \n"
     ^  "  PROMPT_COMMAND=\"__glowstick_prompt_command; $PROMPT_COMMAND\"  \n"
