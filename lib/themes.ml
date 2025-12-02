@@ -8,7 +8,7 @@ module type Theme = sig
 end
 
 module Vwm : Theme = struct
-    let cwd x = x |> foreground Cyan |> bold
+    let cwd x = x |> foreground White |> bold
     let extras x = x |> foreground Blue |> bold
 
     let git_start esc = text " git:(" |> extras |> render ~esc
@@ -29,7 +29,7 @@ module Vwm : Theme = struct
         let git = git_info () in
         let nix = detect_nix_shell () in
 
-        (text "\u{f178}  " |> status_style |> render ~esc)
+        (text "➜  " |> status_style |> render ~esc)
         ^ (text (cwd_basename ()) |> cwd |> render ~esc)
         ^ (match git with
             | NotInGitRepo -> ""
