@@ -8,7 +8,7 @@ module type Theme = sig
 end
 
 module Vwm : Theme = struct
-    let cwd x = x |> foreground White |> bold
+    let cwd x = x |> foreground (Hex 0xd5e0f7) |> bold
     let extras x = x |> foreground Blue |> bold
 
     let git_start esc = text " git:(" |> extras |> render ~esc
