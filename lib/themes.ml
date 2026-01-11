@@ -16,7 +16,8 @@ module EnhancedDef : Theme = struct
       | Success -> x |> foreground Green
     in
     (text "➜  " |> status_style |> render ~esc)
-    ^ (text (Mods.cwd_basename ()) |> bold |> render ~esc)
+    ^ (text (Mods.cwd_basename ())
+      |> foreground (Hex 0xc0c5cf) |> bold |> render ~esc)
     ^ (let git = git_info () in
        match git with
        | NotInGitRepo -> ""
