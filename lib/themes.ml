@@ -9,9 +9,9 @@ end
 
 let shorten_nix nix = match nix with
   | NotInNixShell -> ""
-  | Pure -> "*pure"
-  | Impure -> "*imp"
-  | Unknown -> "*unkw"
+  | Pure -> "pure"
+  | Impure -> "imp"
+  | Unknown -> "unkw"
 
 module Groovy : Theme = struct
   let y = Hex 0xd79921
@@ -38,7 +38,7 @@ module Groovy : Theme = struct
        | _ ->
            " "
            ^ (text (shorten_nix nix) |> foreground Red |> bold |> render ~esc))
-    ^ " >> "
+    ^ (text " * " |> foreground Green |> render ~esc)
 
   let right () = ""
 end
