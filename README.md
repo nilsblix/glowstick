@@ -32,8 +32,10 @@ redraw issues.
 
 ### Themes
 Available themes:
+- `groovy`
 - `enhanced-default`
 - `vwm`
+- `tomita`
 - `default` (the default macos one)
 
 ## Install

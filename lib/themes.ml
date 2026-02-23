@@ -7,6 +7,42 @@ module type Theme = sig
   val right : unit -> string
 end
 
+let shorten_nix nix = match nix with
+  | NotInNixShell -> ""
+  | Pure -> "*pure"
+  | Impure -> "*imp"
+  | Unknown -> "*unkw"
+
+module Groovy : Theme = struct
+  let y = Hex 0xd79921
+
+  let left () =
+    let esc = get_esc () in
+    let status_style x =
+      match last_status () with
+      | Fail -> x |> foreground Red
+      | Success -> x |> foreground Green
+    in
+    (text "➜  " |> status_style |> render ~esc)
+    ^ (text (Mods.cwd_abbreviated ())
+      |> foreground (Hex 0xc0c5cf) |> bold |> render ~esc)
+    ^ (let git = git_info () in
+       match git with
+       | NotInGitRepo -> ""
+       | _ ->
+           " "
+           ^ (text (string_of_git git) |> foreground y |> bold |> render ~esc))
+    ^ (let nix = detect_nix_shell () in
+       match nix with
+       | NotInNixShell -> ""
+       | _ ->
+           " "
+           ^ (text (shorten_nix nix) |> foreground Red |> bold |> render ~esc))
+    ^ " >> "
+
+  let right () = ""
+end
+
 module EnhancedDef : Theme = struct
   let left () =
     let esc = get_esc () in
@@ -111,6 +147,7 @@ end
 
 let match_to_theme (s : string) =
   match String.lowercase_ascii s with
+  | "groovy" -> Some (Groovy.left, Groovy.right)
   | "enhanced-def" -> Some (EnhancedDef.left, EnhancedDef.right)
   | "vwm" -> Some (Vwm.left, Vwm.right)
   | "tomita" -> Some (Tomita.left, Tomita.right)
