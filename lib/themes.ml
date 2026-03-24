@@ -140,7 +140,7 @@ end
 
 module Default : Theme = struct
   let left () =
-    user_name () ^ "@" ^ host_name () ^ " " ^ cwd_basename () ^ " %# "
+    user_name () ^ "@" ^ host_name () ^ ":" ^ cwd_basename () ^ " $ "
 
   let right () = ""
 end
