@@ -52,21 +52,14 @@ module EnhancedDef : Theme = struct
       | Success -> x |> foreground Green
     in
     (text "➜  " |> status_style |> render ~esc)
-    ^ (text (Mods.cwd_basename ())
-      |> foreground (Hex 0xc0c5cf) |> bold |> render ~esc)
-    ^ (let git = git_info () in
-       match git with
-       | NotInGitRepo -> ""
-       | _ ->
-           " "
-           ^ (text (string_of_git git) |> foreground Cyan |> bold |> render ~esc))
+    ^ user_name () ^ "@" ^ host_name () ^ ":" ^ cwd_basename ()
     ^ (let nix = detect_nix_shell () in
        match nix with
        | NotInNixShell -> ""
        | _ ->
            " "
            ^ (text (string_of_nix nix) |> foreground Red |> bold |> render ~esc))
-    ^ " "
+    ^ (text " * " |> foreground Green |> render ~esc)
 
   let right () = ""
 end
