@@ -72,6 +72,38 @@ let get_esc () =
       | "bash" -> fun x -> "\\[" ^ x ^ "\\]"
       | _ -> default)
 
+let escape_zsh_prompt_percents (s : string) =
+  let len = String.length s in
+  let buf = Buffer.create len in
+  let rec copy_wrapped i =
+    if i >= len then i
+    else if i + 1 < len && s.[i] = '%' && s.[i + 1] = '}' then (
+      Buffer.add_string buf "%}";
+      i + 2)
+    else (
+      Buffer.add_char buf s.[i];
+      copy_wrapped (i + 1))
+  in
+  let rec loop i =
+    if i >= len then ()
+    else if i + 1 < len && s.[i] = '%' && s.[i + 1] = '{' then (
+      Buffer.add_string buf "%{";
+      loop (copy_wrapped (i + 2)))
+    else if s.[i] = '%' then (
+      Buffer.add_string buf "%%";
+      loop (i + 1))
+    else (
+      Buffer.add_char buf s.[i];
+      loop (i + 1))
+  in
+  loop 0;
+  Buffer.contents buf
+
+let escape_prompt_literals (s : string) =
+  match Sys.getenv_opt "__GLOWSTICK_SHELL_TYPE" with
+  | Some "zsh" -> escape_zsh_prompt_percents s
+  | _ -> s
+
 let visible_length (s : string) : int =
   let len = String.length s in
   let rec find_end_zsh i =
