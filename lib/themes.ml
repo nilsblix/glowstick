@@ -52,14 +52,15 @@ module EnhancedDef : Theme = struct
       | Success -> x |> foreground Green
     in
     (text "➜  " |> status_style |> render ~esc)
-    ^ user_name () ^ "@" ^ host_name () ^ ":" ^ cwd_basename ()
+    (* "" *)
+    ^ user_name () ^ "@" ^ host_name () ^ " " ^ cwd_basename ()
     ^ (let nix = detect_nix_shell () in
        match nix with
        | NotInNixShell -> ""
        | _ ->
            " "
-           ^ (text (string_of_nix nix) |> foreground Red |> bold |> render ~esc))
-    ^ (text " * " |> foreground Green |> render ~esc)
+           ^ (text (shorten_nix nix) |> foreground Red |> bold |> render ~esc))
+    ^ (text " % " |> foreground (Hex 0x4287f5) |> render ~esc)
 
   let right () = ""
 end
