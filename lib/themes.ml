@@ -43,6 +43,27 @@ module Groovy : Theme = struct
   let right () = ""
 end
 
+module Hyperion : Theme = struct
+  let left () =
+    let esc = get_esc () in
+    let status_style x =
+      match last_status () with
+      | Fail -> x |> foreground Red
+      | Success -> x |> foreground (Hex 0x89C1FE)
+    in
+    (text "➜ " |> status_style |> render ~esc)
+    ^ user_name () ^ "@" ^ host_name () ^ " " ^ cwd_basename ()
+    ^ (let nix = detect_nix_shell () in
+       match nix with
+       | NotInNixShell -> ""
+       | _ ->
+           " "
+           ^ (text (shorten_nix nix) |> foreground Red |> bold |> render ~esc))
+    ^ (text "> " |> foreground (Hex 0x4287f5) |> render ~esc)
+
+  let right () = ""
+end
+
 module EnhancedDef : Theme = struct
   let left () =
     let esc = get_esc () in
@@ -142,6 +163,7 @@ end
 let match_to_theme (s : string) =
   match String.lowercase_ascii s with
   | "groovy" -> Some (Groovy.left, Groovy.right)
+  | "hyperion" -> Some (Hyperion.left, Hyperion.right)
   | "enhanced-def" -> Some (EnhancedDef.left, EnhancedDef.right)
   | "vwm" -> Some (Vwm.left, Vwm.right)
   | "tomita" -> Some (Tomita.left, Tomita.right)
