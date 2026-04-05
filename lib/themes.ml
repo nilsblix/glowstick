@@ -13,6 +13,33 @@ let shorten_nix nix = match nix with
   | Impure -> "imp"
   | Unknown -> "unkw"
 
+module Reid : Theme = struct
+  let left () =
+    let esc = get_esc () in
+    let status_style x =
+      match last_status () with
+      | Fail -> x |> foreground Red
+      | Success -> x |> foreground (Hex 0x89C1FE)
+    in
+    (text "➜ " |> status_style |> render ~esc)
+    ^ (text (cwd_abbreviated ()) |> foreground (Hex 0xDCDCAA) |> render ~esc)
+    ^ (let git = git_info () in
+       match git with
+       | NotInGitRepo -> ""
+       | _ ->
+           " on "
+           ^ (text (string_of_git git) |> foreground Green |> render ~esc))
+    ^ (let nix = detect_nix_shell () in
+       match nix with
+       | NotInNixShell -> ""
+       | _ ->
+           " "
+           ^ (text (shorten_nix nix) |> foreground Red |> bold |> render ~esc))
+    ^ (text "> " |> foreground (Hex 0x4287f5) |> render ~esc)
+
+  let right () = ""
+end
+
 module Groovy : Theme = struct
   let y = Hex 0xd79921
 
@@ -64,28 +91,6 @@ module Hyperion : Theme = struct
   let right () = ""
 end
 
-module EnhancedDef : Theme = struct
-  let left () =
-    let esc = get_esc () in
-    let status_style x =
-      match last_status () with
-      | Fail -> x |> foreground Red
-      | Success -> x |> foreground Green
-    in
-    (text "➜  " |> status_style |> render ~esc)
-    (* "" *)
-    ^ user_name () ^ "@" ^ host_name () ^ " " ^ cwd_basename ()
-    ^ (let nix = detect_nix_shell () in
-       match nix with
-       | NotInNixShell -> ""
-       | _ ->
-           " "
-           ^ (text (shorten_nix nix) |> foreground Red |> bold |> render ~esc))
-    ^ (text " % " |> foreground (Hex 0x4287f5) |> render ~esc)
-
-  let right () = ""
-end
-
 module Vwm : Theme = struct
   let cwd x = x |> foreground (Hex 0xd5e0f7) |> bold
   let extras x = x |> foreground Blue |> bold
@@ -123,49 +128,18 @@ module Vwm : Theme = struct
   let right () = ""
 end
 
-module Tomita : Theme = struct
-  let green = Hex 0x008B67
-  let white = Hex 0xFFFFFF
-  let yellow = Hex 0xE2D351
-  let grey = Hex 0x676767
-
-  let left () =
-    let cwd = cwd_abbreviated () in
-    let git = git_info () in
-    let esc = get_esc () in
-    (text cwd |> foreground green |> render ~esc)
-    ^ (match git with
-      | NotInGitRepo -> ""
-      | _ ->
-          text (" (" ^ string_of_git git ^ ")")
-          |> foreground white |> render ~esc)
-    ^ (text " ⋊> " |> foreground yellow |> render ~esc)
-
-  let right () =
-    let nix = detect_nix_shell () in
-    let time = time () in
-    let esc = get_esc () in
-    (match nix with
-    | NotInNixShell -> ""
-    | _ ->
-        text ("(nix: " ^ string_of_nix nix ^ ") ")
-        |> foreground grey |> render ~esc)
-    ^ (text time |> foreground grey |> render ~esc)
-end
-
 module Default : Theme = struct
   let left () =
-    user_name () ^ "@" ^ host_name () ^ ":" ^ cwd_basename () ^ " $ "
+    user_name () ^ "@" ^ host_name () ^ " " ^ cwd_basename () ^ " $ "
 
   let right () = ""
 end
 
 let match_to_theme (s : string) =
   match String.lowercase_ascii s with
+  | "reid" -> Some (Reid.left, Reid.right)
   | "groovy" -> Some (Groovy.left, Groovy.right)
   | "hyperion" -> Some (Hyperion.left, Hyperion.right)
-  | "enhanced-def" -> Some (EnhancedDef.left, EnhancedDef.right)
   | "vwm" -> Some (Vwm.left, Vwm.right)
-  | "tomita" -> Some (Tomita.left, Tomita.right)
   | "default" -> Some (Default.left, Default.right)
   | _ -> None
