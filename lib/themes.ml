@@ -13,6 +13,28 @@ let shorten_nix nix = match nix with
   | Impure -> "imp"
   | Unknown -> "unkw"
 
+module Intro : Theme = struct
+  let left () =
+    let esc = get_esc () in
+    let status_style x =
+      match last_status () with
+      | Fail -> x |> foreground Red
+      | Success -> x |> foreground Green
+    in
+    (text "➜  " |> status_style |> render ~esc)
+    ^ (text (cwd_basename ()) |> foreground (Hex 0xDCDCAA) |> render ~esc)
+    ^ (let nix = detect_nix_shell () in
+       match nix with
+       | NotInNixShell -> ""
+       | _ ->
+           " "
+           ^ shorten_nix nix)
+           (* ^ (text (shorten_nix nix) |> foreground Red |> bold |> render ~esc)) *)
+    ^ " -> "
+
+  let right () = ""
+end
+
 module Reid : Theme = struct
   let left () =
     let esc = get_esc () in
@@ -137,6 +159,7 @@ end
 
 let match_to_theme (s : string) =
   match String.lowercase_ascii s with
+  | "intro" -> Some (Intro.left, Intro.right)
   | "reid" -> Some (Reid.left, Reid.right)
   | "groovy" -> Some (Groovy.left, Groovy.right)
   | "hyperion" -> Some (Hyperion.left, Hyperion.right)

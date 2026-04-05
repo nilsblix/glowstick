@@ -32,6 +32,7 @@ redraw issues.
 
 ### Themes
 Available themes:
+- `intro`
 - `reid`
 - `groovy`
 - `hyperion`
