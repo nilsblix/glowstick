@@ -13,7 +13,7 @@ let shorten_nix nix = match nix with
   | Impure -> "imp"
   | Unknown -> "unkw"
 
-module Intro : Theme = struct
+module Fish : Theme = struct
   let left () =
     let esc = get_esc () in
     let status_style x =
@@ -21,43 +21,17 @@ module Intro : Theme = struct
       | Fail -> x |> foreground Red
       | Success -> x |> foreground Green
     in
-    (text "➜  " |> status_style |> render ~esc)
-    ^ (text (cwd_basename ()) |> foreground (Hex 0xDCDCAA) |> render ~esc)
-    ^ (let nix = detect_nix_shell () in
-       match nix with
-       | NotInNixShell -> ""
-       | _ ->
-           " "
-           ^ shorten_nix nix)
-           (* ^ (text (shorten_nix nix) |> foreground Red |> bold |> render ~esc)) *)
-    ^ " -> "
-
-  let right () = ""
-end
-
-module Reid : Theme = struct
-  let left () =
-    let esc = get_esc () in
-    let status_style x =
-      match last_status () with
-      | Fail -> x |> foreground Red
-      | Success -> x |> foreground (Hex 0x89C1FE)
-    in
-    (text "➜ " |> status_style |> render ~esc)
-    ^ (text (cwd_abbreviated ()) |> foreground (Hex 0xDCDCAA) |> render ~esc)
+    (text "⋊>  " |> status_style |> render ~esc)
+    ^ (text (cwd_basename ()) |> bold |> render ~esc)
     ^ (let git = git_info () in
        match git with
        | NotInGitRepo -> ""
-       | _ ->
-           " on "
-           ^ (text (string_of_git git) |> foreground Green |> render ~esc))
+       | _ -> " " ^ string_of_git git)
     ^ (let nix = detect_nix_shell () in
        match nix with
        | NotInNixShell -> ""
-       | _ ->
-           " "
-           ^ (text (shorten_nix nix) |> foreground Red |> bold |> render ~esc))
-    ^ (text "> " |> foreground (Hex 0x4287f5) |> render ~esc)
+       | _ -> " " ^ shorten_nix nix)
+    ^ (text " $ " |> foreground Cyan |> render ~esc)
 
   let right () = ""
 end
@@ -159,8 +133,7 @@ end
 
 let match_to_theme (s : string) =
   match String.lowercase_ascii s with
-  | "intro" -> Some (Intro.left, Intro.right)
-  | "reid" -> Some (Reid.left, Reid.right)
+  | "fish" -> Some (Fish.left, Fish.right)
   | "groovy" -> Some (Groovy.left, Groovy.right)
   | "hyperion" -> Some (Hyperion.left, Hyperion.right)
   | "vwm" -> Some (Vwm.left, Vwm.right)
