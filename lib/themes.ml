@@ -31,7 +31,7 @@ module Fish : Theme = struct
        match nix with
        | NotInNixShell -> ""
        | _ -> " " ^ shorten_nix nix)
-    ^ (text " $ " |> foreground Cyan |> render ~esc)
+    ^ (text " > " |> foreground Magenta |> bold |> render ~esc)
 
   let right () = ""
 end
