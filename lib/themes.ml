@@ -9,9 +9,9 @@ end
 
 let shorten_nix nix = match nix with
   | NotInNixShell -> ""
-  | Pure -> "pure"
-  | Impure -> "imp"
-  | Unknown -> "unkw"
+  | Pure -> "@P"
+  | Impure -> "@I"
+  | Unknown -> "@U"
 
 module Fish : Theme = struct
   let left () =
@@ -22,19 +22,21 @@ module Fish : Theme = struct
       | Success -> x |> foreground Green
     in
     (text "⋊>  " |> status_style |> render ~esc)
-    ^ (text (cwd_basename ()) |> foreground (Hex 0xC8F741) |> bold |> render ~esc)
+    ^ (text (cwd_abbreviated ())
+      |> foreground White
+      |> bold
+      |> render ~esc)
     ^ (let git = git_info () in
        match git with
        | NotInGitRepo -> ""
        | _ -> text (" " ^ string_of_git git)
-              |> foreground (Hex 0x3D8A33)
-              |> bold
+              |> foreground (Hex 0xC8F741)
               |> render ~esc)
     ^ (let nix = detect_nix_shell () in
        match nix with
        | NotInNixShell -> ""
        | _ -> text (" " ^ shorten_nix nix)
-              |> foreground (Hex 0x9C47A2)
+              |> foreground (Hex 0xF48FB1)
               |> bold
               |> render ~esc)
     ^ (text " > " |> foreground Magenta |> bold |> render ~esc)
