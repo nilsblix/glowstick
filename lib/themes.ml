@@ -22,15 +22,21 @@ module Fish : Theme = struct
       | Success -> x |> foreground Green
     in
     (text "⋊>  " |> status_style |> render ~esc)
-    ^ (text (cwd_basename ()) |> bold |> render ~esc)
+    ^ (text (cwd_basename ()) |> foreground (Hex 0xC8F741) |> bold |> render ~esc)
     ^ (let git = git_info () in
        match git with
        | NotInGitRepo -> ""
-       | _ -> " " ^ string_of_git git)
+       | _ -> text (" " ^ string_of_git git)
+              |> foreground (Hex 0x3D8A33)
+              |> bold
+              |> render ~esc)
     ^ (let nix = detect_nix_shell () in
        match nix with
        | NotInNixShell -> ""
-       | _ -> " " ^ shorten_nix nix)
+       | _ -> text (" " ^ shorten_nix nix)
+              |> foreground (Hex 0x9C47A2)
+              |> bold
+              |> render ~esc)
     ^ (text " > " |> foreground Magenta |> bold |> render ~esc)
 
   let right () = ""
