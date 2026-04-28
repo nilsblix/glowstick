@@ -20,7 +20,7 @@ module Anyhow : Theme = struct
     | Branch b ->
       " ("
       ^ (text b
-        |> foreground (Hex 0xD78A84)
+        (* |> foreground (Hex 0xD78A84) *)
         |> bold
         |> render ~esc)
       ^ ")"
@@ -28,9 +28,9 @@ module Anyhow : Theme = struct
     let nix = match detect_nix_shell () with
     | NotInNixShell -> ""
     | n ->
-        " ("
+        " (\u{f1105}"
         ^ (text (string_of_nix n)
-          |> foreground (Hex 0xF9ED7D)
+          (* |> foreground (Hex 0xF9ED7D) *)
           |> bold
           |> render ~esc)
         ^ ")"
