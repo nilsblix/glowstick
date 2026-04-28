@@ -10,18 +10,17 @@ end
 module Anyhow : Theme = struct
   let left () =
     let esc = get_esc () in
-    let start = "" in
-    let dir = text (cwd_basename ())
-      |> foreground White
-      |> bold
+    let start = text "➜  "
+      |> foreground (Hex 0x76A8E0)
       |> render ~esc
     in
+    let dir = cwd_basename () in
     let git = match git_info () with
     | NotInGitRepo -> ""
     | Branch b ->
       " ("
       ^ (text b
-        |> foreground (Hex 0xF9ED7D)
+        |> foreground (Hex 0xD78A84)
         |> bold
         |> render ~esc)
       ^ ")"
@@ -31,7 +30,7 @@ module Anyhow : Theme = struct
     | n ->
         " ("
         ^ (text (string_of_nix n)
-          |> foreground (Hex 0x6FAFD9)
+          |> foreground (Hex 0xF9ED7D)
           |> bold
           |> render ~esc)
         ^ ")"
@@ -42,7 +41,6 @@ module Anyhow : Theme = struct
       " ("
       ^ (text (string_of_int code)
         |> foreground Red
-        |> bold
         |> render ~esc)
       ^ ")"
     in
