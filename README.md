@@ -32,10 +32,8 @@ redraw issues.
 
 ### Themes
 Available themes:
+- `anyhow`
 - `fish`
-- `groovy`
-- `hyperion`
-- `vwm`
 - `default` (the default macos one)
 
 ## Install

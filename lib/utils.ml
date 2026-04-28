@@ -72,6 +72,17 @@ let get_esc () =
       | "bash" -> fun x -> "\\[" ^ x ^ "\\]"
       | _ -> default)
 
+type status = Success | Fail of int
+
+let last_status () =
+  match Sys.getenv_opt "__GLOWSTICK_LAST_STATUS" with
+  | Some s -> (
+      match int_of_string_opt s with
+      | Some 0 -> Success
+      | Some code -> Fail code
+      | None -> Fail 1)
+  | None -> Fail 1
+
 let escape_zsh_prompt_percents (s : string) =
   let len = String.length s in
   let buf = Buffer.create len in
