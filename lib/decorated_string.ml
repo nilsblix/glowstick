@@ -116,7 +116,7 @@ let render (esc : (string -> string) option) (dec : t) =
         acc ^ escape_fun "\x1b[23m"
     | Padded (inner, left, right) ->
         let acc = aux acc inner in
-        let reset = "\x1b[0m" in
+        let reset = escape_fun "\x1b[0m" in
         let left = reset ^ left in
         let right = reset ^ right in
         let acc = left ^ acc ^ right in

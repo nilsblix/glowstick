@@ -25,8 +25,7 @@ module Anyhow : Theme = struct
     | Branch b ->
       text b
       |> padded " " ""
-      |> foreground White
-      (* |> foreground (Hex 0xD4E057) *)
+      |> foreground White (* (Hex 0xD4E057) *)
       |> bold
       |> render esc
     in
