@@ -61,16 +61,17 @@ let abbreviate_segments (segments : string list) =
       let abbrev_rest = List.map abbrev_seg rest in
       String.concat "/" (abbrev_rest @ [ last ])
 
+let default_esc = fun x -> x
+
 let get_esc () =
-  let default = fun x -> x in
   let shell_opt = Sys.getenv_opt "__GLOWSTICK_SHELL_TYPE" in
   match shell_opt with
-  | None -> default
+  | None -> None
   | Some s -> (
       match s with
-      | "zsh" -> fun x -> "%{" ^ x ^ "%}"
-      | "bash" -> fun x -> "\\[" ^ x ^ "\\]"
-      | _ -> default)
+      | "zsh" -> Some (fun x -> "%{" ^ x ^ "%}")
+      | "bash" -> Some (fun x -> "\\[" ^ x ^ "\\]")
+      | _ -> None)
 
 type status = Success | Fail of int
 

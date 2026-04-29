@@ -4,14 +4,14 @@ let build_left (theme : string) () =
   match Themes.match_to_theme theme with
   | Some t -> Utils.escape_prompt_literals ((fst t) ())
   | None ->
-      text "(!!) Unknown left theme: " |> foreground Red |> render
+      text "(!!) Unknown left theme: " |> foreground Red |> render None
       |> Utils.escape_prompt_literals
 
 let build_right (theme : string) () =
   match Themes.match_to_theme theme with
   | Some t -> Utils.escape_prompt_literals ((snd t) ())
   | None ->
-      text "(!!) Unknown right theme" |> foreground Red |> render
+      text "(!!) Unknown right theme" |> foreground Red |> render None
       |> Utils.escape_prompt_literals
 
 let zsh_init_script theme () =

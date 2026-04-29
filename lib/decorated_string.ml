@@ -76,6 +76,7 @@ type t =
   | Background of (t * color)
   | Underlined of t
   | Italic of t
+  | Padded of (t * string * string)
   | Text of string
 
 let text s = Text s
@@ -84,9 +85,13 @@ let foreground col d = Foreground (d, col)
 let background col d = Background (d, col)
 let underlined d = Underlined d
 let italic d = Italic d
+let padded left right d = Padded (d, left, right)
 
-let render ?(esc : (string -> string) option) (dec : t) =
-  let escape_fun = match esc with Some f -> f | None -> Utils.get_esc () in
+let render (esc : (string -> string) option) (dec : t) =
+  let escape_fun = match esc with
+    | Some f -> f
+    | None -> Option.value (Utils.get_esc ()) ~default:Utils.default_esc
+  in
   let rec aux acc d =
     match d with
     | Bold inner ->
@@ -109,6 +114,13 @@ let render ?(esc : (string -> string) option) (dec : t) =
         let acc = acc ^ escape_fun "\x1b[3m" in
         let acc = aux acc inner in
         acc ^ escape_fun "\x1b[23m"
+    | Padded (inner, left, right) ->
+        let acc = aux acc inner in
+        let reset = "\x1b[0m" in
+        let left = reset ^ left in
+        let right = reset ^ right in
+        let acc = left ^ acc ^ right in
+        acc
     | Text s -> acc ^ s
   in
   aux "" dec
