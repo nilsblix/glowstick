@@ -7,17 +7,6 @@ module type Theme = sig
   val right : unit -> string
 end
 
-let pill inner_text fg bg esc =
-  let diamond = function n -> text n
-    |> foreground bg
-    |> render esc
-  in
-  text inner_text
-  |> padded (diamond " \u{e0b6}") (diamond "\u{e0b4}")
-  |> foreground fg
-  |> background bg
-  |> render esc
-
 module Anyhow : Theme = struct
   let left () =
     let esc = get_esc () in
@@ -44,8 +33,16 @@ module Anyhow : Theme = struct
     let nix = match detect_nix_shell () with
     | NotInNixShell -> ""
     | n ->
-        let inner = text (string_of_nix n) |> bold |> render esc in
-        pill inner White (Hex 0x316ce4) esc
+        let diamond = function x -> text x
+          |> foreground (Hex 0x316ce4)
+          |> render esc
+        in
+        text (string_of_nix n)
+        |> background (Hex 0x316ce4)
+        |> foreground White
+        |> bold
+        |> padded (diamond " \u{e0b6}") (diamond "\u{e0b4}")
+        |> render esc
     in
     let marker = text " $ "
       |> foreground (Hex 0x80B768)
