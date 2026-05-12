@@ -11,7 +11,7 @@ module Anyhow : Theme = struct
   let left () =
     let esc = get_esc () in
     let start =
-      let c= match last_status () with
+      let c = match last_status () with
       | Success -> Green
       | Fail _ -> Red
       in

@@ -8,11 +8,11 @@ let user_name () =
 let host_name () = Unix.gethostname ()
 
 let cwd () =
-  let cwd = Sys.getcwd () in
+  let wd = Sys.getcwd () in
   match Sys.getenv_opt "HOME" with
   | Some home -> (
-      match remove_prefix home cwd with Some path -> "~" ^ path | None -> cwd)
-  | _ -> cwd
+      match remove_prefix home wd with Some path -> "~" ^ path | None -> wd)
+  | _ -> wd
 
 let cwd_basename () =
   let cwd = Sys.getcwd () in
@@ -21,25 +21,25 @@ let cwd_basename () =
   | _ -> Filename.basename cwd
 
 let cwd_abbreviated () =
-  let cwd = Sys.getcwd () in
+  let wd = Sys.getcwd () in
   match Sys.getenv_opt "HOME" with
-  | Some home when String.starts_with ~prefix:home cwd ->
-      if cwd = home then "~"
+  | Some home when String.starts_with ~prefix:home wd ->
+      if wd = home then "~"
       else
         let start_idx =
           let l = String.length home in
-          if String.length cwd > l && cwd.[l] = '/' then l + 1 else l
+          if String.length wd > l && wd.[l] = '/' then l + 1 else l
         in
-        let rel = String.sub cwd start_idx (String.length cwd - start_idx) in
+        let rel = String.sub wd start_idx (String.length wd - start_idx) in
         let segments = split_on_slash rel in
         "~/" ^ abbreviate_segments segments
   | _ ->
-      if String.length cwd = 1 && cwd.[0] = '/' then "/"
-      else if String.starts_with ~prefix:"/" cwd then
-        let nolead = String.sub cwd 1 (String.length cwd - 1) in
+      if String.length wd = 1 && wd.[0] = '/' then "/"
+      else if String.starts_with ~prefix:"/" wd then
+        let nolead = String.sub wd 1 (String.length wd - 1) in
         let segments = split_on_slash nolead in
         "/" ^ abbreviate_segments segments
-      else abbreviate_segments (split_on_slash cwd)
+      else abbreviate_segments (split_on_slash wd)
 
 type nix_shell_type = NotInNixShell | Pure | Impure | Unknown
 
