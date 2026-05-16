@@ -22,7 +22,7 @@ eval "$(/path/to/executable init bash vwm)"
 ```
 
 Replace `/path/to/executable` with the full path or a command in your `PATH`,
-and replace the theme (e.g. `groovy`, `vwm`) with your preferred theme.
+and replace the theme (e.g. `anyhow`, `fish`) with your preferred theme.
 
 Notes:
 - zsh uses native `PROMPT` and `RPROMPT` for stable left/right prompts.
@@ -32,9 +32,10 @@ redraw issues.
 
 ### Themes
 Available themes:
+- `default` (the default macos one)
 - `anyhow`
 - `fish`
-- `default` (the default macos one)
+- `nixed`
 
 ## Install
 If you use nix, simply run:

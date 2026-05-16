@@ -88,7 +88,8 @@ let italic d = Italic d
 let padded left right d = Padded (d, left, right)
 
 let render (esc : (string -> string) option) (dec : t) =
-  let escape_fun = match esc with
+  let escape_fun =
+    match esc with
     | Some f -> f
     | None -> Option.value (Utils.get_esc ()) ~default:Utils.default_esc
   in
