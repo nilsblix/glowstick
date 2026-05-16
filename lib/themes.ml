@@ -63,7 +63,8 @@ module Fish : Theme = struct
       | Fail _ -> x |> foreground Red
       | Success -> x |> foreground Green
     in
-    (text "⋊>  " |> status_style |> render esc)
+    (* ⋊> *)
+    (text "➜  " |> status_style |> render esc)
     ^ (text (cwd_abbreviated ()) |> foreground White |> bold |> render esc)
     ^ (let git = git_info () in
        match git with
