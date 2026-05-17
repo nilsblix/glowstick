@@ -35,7 +35,7 @@ Available themes:
 - `default` (the default macos one)
 - `anyhow`
 - `fish`
-- `nixed`
+- `green`
 
 ## Install
 If you use nix, simply run:

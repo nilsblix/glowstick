@@ -83,19 +83,32 @@ module Fish : Theme = struct
   let right () = ""
 end
 
-module Nixed : Theme = struct
+module Green : Theme = struct
   let left () =
-    let esc = get_esc () in
-    let def = user_name () ^ "@" ^ host_name () ^ " " ^ cwd_basename () in
+    let e = get_esc () in
+    let start =
+      let c = match last_status () with Success -> Green | Fail _ -> Red in
+      text "\u{f185}  " |> foreground c |> render e
+    in
+    let cwd = text (cwd_abbreviated ()) |> foreground Green |> bold |> render e in
+    let git = match (git_info ()) with
+    | NotInGitRepo -> ""
+    | Branch b -> " on " ^ (text b |> foreground Green |> bold |> render e)
+    in
     let nix =
       match detect_nix_shell () with
       | NotInNixShell -> ""
       | n ->
+          let diamond = function
+            | x -> text x |> foreground (Hex 0x316ce4) |> render e
+          in
           text (string_of_nix n)
-          |> padded " (" ")" |> foreground Green |> bold |> render esc
+          |> background (Hex 0x316ce4) |> foreground White |> bold
+          |> padded (diamond " \u{e0b6}") (diamond "\u{e0b4}")
+          |> render e
     in
-    let marker = text " % " |> foreground BrightRed |> render esc in
-    def ^ nix ^ marker
+    let marker = text " |> " |> foreground White |> bold |> render e in
+    start ^ cwd ^ git ^ nix ^ marker
 
   let right () = ""
 end
@@ -105,5 +118,5 @@ let match_to_theme (s : string) =
   | "default" -> Some (Default.left, Default.right)
   | "anyhow" -> Some (Anyhow.left, Fish.right)
   | "fish" -> Some (Fish.left, Fish.right)
-  | "nixed" -> Some (Nixed.left, Nixed.right)
+  | "green" -> Some (Green.left, Green.right)
   | _ -> None
