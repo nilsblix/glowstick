@@ -33,6 +33,7 @@ redraw issues.
 ### Themes
 Available themes:
 - `default` (the default macos one)
+- `default-nix` (the default macos one, with a plain nix shell segment)
 - `anyhow`
 - `fish`
 - `green`

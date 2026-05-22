@@ -14,6 +14,21 @@ module Default : Theme = struct
   let right () = ""
 end
 
+let default_nix_segment () =
+  match detect_nix_shell () with
+  | NotInNixShell -> ""
+  | nix ->
+      text (" (nix:" ^ string_of_nix nix ^ ")")
+      |> foreground (Hex 0xF48FB1) |> bold |> render (get_esc ())
+
+module DefaultNix : Theme = struct
+  let left () =
+    user_name () ^ "@" ^ host_name () ^ " " ^ cwd_basename ()
+    ^ default_nix_segment () ^ " $ "
+
+  let right () = ""
+end
+
 module Anyhow : Theme = struct
   let left () =
     let esc = get_esc () in
@@ -116,6 +131,7 @@ end
 let match_to_theme (s : string) =
   match String.lowercase_ascii s with
   | "default" -> Some (Default.left, Default.right)
+  | "default-nix" -> Some (DefaultNix.left, DefaultNix.right)
   | "anyhow" -> Some (Anyhow.left, Fish.right)
   | "fish" -> Some (Fish.left, Fish.right)
   | "green" -> Some (Green.left, Green.right)
