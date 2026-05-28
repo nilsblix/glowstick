@@ -22,7 +22,7 @@ eval "$(/path/to/executable init bash vwm)"
 ```
 
 Replace `/path/to/executable` with the full path or a command in your `PATH`,
-and replace the theme (e.g. `anyhow`, `fish`) with your preferred theme.
+and replace the theme (e.g. `anyhow`, `modern`) with your preferred theme.
 
 Notes:
 - zsh uses native `PROMPT` and `RPROMPT` for stable left/right prompts.
@@ -35,8 +35,7 @@ Available themes:
 - `default` (the default macos one)
 - `default-nix` (the default macos one, with a plain nix shell segment)
 - `anyhow`
-- `fish`
-- `green`
+- `modern`
 
 ## Install
 If you use nix, simply run:

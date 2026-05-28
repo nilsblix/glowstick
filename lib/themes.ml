@@ -70,7 +70,7 @@ let shorten_nix nix =
   | Impure -> "@I"
   | Unknown -> "@U"
 
-module Fish : Theme = struct
+module Modern : Theme = struct
   let left () =
     let esc = get_esc () in
     let status_style x =
@@ -98,41 +98,10 @@ module Fish : Theme = struct
   let right () = ""
 end
 
-module Green : Theme = struct
-  let left () =
-    let e = get_esc () in
-    let start =
-      let c = match last_status () with Success -> Green | Fail _ -> Red in
-      text "\u{f185}  " |> foreground c |> render e
-    in
-    let cwd = text (cwd_abbreviated ()) |> foreground Green |> bold |> render e in
-    let git = match (git_info ()) with
-    | NotInGitRepo -> ""
-    | Branch b -> " on " ^ (text b |> foreground Green |> bold |> render e)
-    in
-    let nix =
-      match detect_nix_shell () with
-      | NotInNixShell -> ""
-      | n ->
-          let diamond = function
-            | x -> text x |> foreground (Hex 0x316ce4) |> render e
-          in
-          text (string_of_nix n)
-          |> background (Hex 0x316ce4) |> foreground White |> bold
-          |> padded (diamond " \u{e0b6}") (diamond "\u{e0b4}")
-          |> render e
-    in
-    let marker = text " |> " |> foreground White |> bold |> render e in
-    start ^ cwd ^ git ^ nix ^ marker
-
-  let right () = ""
-end
-
 let match_to_theme (s : string) =
   match String.lowercase_ascii s with
   | "default" -> Some (Default.left, Default.right)
   | "default-nix" -> Some (DefaultNix.left, DefaultNix.right)
-  | "anyhow" -> Some (Anyhow.left, Fish.right)
-  | "fish" -> Some (Fish.left, Fish.right)
-  | "green" -> Some (Green.left, Green.right)
+  | "anyhow" -> Some (Anyhow.left, Anyhow.right)
+  | "modern" -> Some (Modern.left, Modern.right)
   | _ -> None
