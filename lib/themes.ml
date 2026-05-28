@@ -29,6 +29,44 @@ module DefaultNix : Theme = struct
   let right () = ""
 end
 
+let fish_prompt_hostname () =
+  let host = host_name () in
+  match String.index_opt host '.' with
+  | Some idx -> String.sub host 0 idx
+  | None -> host
+
+let fish_vcs_prompt () =
+  match git_info () with
+  | NotInGitRepo -> ""
+  | Branch b -> " (" ^ b ^ ")"
+
+let fish_prompt_status esc =
+  match last_status () with
+  | Success -> ""
+  | Fail code ->
+      " "
+      ^ (text ("[" ^ string_of_int code ^ "]") |> foreground Red |> render esc)
+
+module DefaultFish : Theme = struct
+  let left () =
+    let esc = get_esc () in
+    let cwd_color, suffix =
+      if Unix.geteuid () = 0 then (Red, "#") else (Green, ">")
+    in
+    let host =
+      let h = text (fish_prompt_hostname ()) in
+      match Sys.getenv_opt "SSH_TTY" with
+      | Some _ -> h |> foreground Yellow |> render esc
+      | None -> render esc h
+    in
+    (text (user_name ()) |> foreground BrightGreen |> render esc)
+    ^ "@" ^ host ^ " "
+    ^ (text (cwd_abbreviated ()) |> foreground cwd_color |> render esc)
+    ^ fish_vcs_prompt () ^ fish_prompt_status esc ^ suffix ^ " "
+
+  let right () = ""
+end
+
 module Anyhow : Theme = struct
   let left () =
     let esc = get_esc () in
@@ -102,6 +140,7 @@ let match_to_theme (s : string) =
   match String.lowercase_ascii s with
   | "default" -> Some (Default.left, Default.right)
   | "default-nix" -> Some (DefaultNix.left, DefaultNix.right)
+  | "default-fish" | "fish" -> Some (DefaultFish.left, DefaultFish.right)
   | "anyhow" -> Some (Anyhow.left, Anyhow.right)
   | "modern" -> Some (Modern.left, Modern.right)
   | _ -> None
