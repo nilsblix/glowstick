@@ -13,12 +13,17 @@ Initialize via eval (choose a theme):
 
 - zsh (`~/.zshrc`):
 ```
-eval "$(/path/to/executable init zsh default)"
+eval "$(/path/to/executable zsh default)"
 ```
 
 - bash (`~/.bashrc`):
 ```
-eval "$(/path/to/executable init bash vwm)"
+eval "$(/path/to/executable bash anyhow)"
+```
+
+- fish (`~/.config/fish/config.fish`):
+```
+/path/to/executable fish default-fish | source
 ```
 
 Replace `/path/to/executable` with the full path or a command in your `PATH`,
@@ -29,6 +34,7 @@ Notes:
 - bash sets `PS1` via `PROMPT_COMMAND` and does not provide a native right
 prompt. The left prompt is rendered with correct escape-wrapping to avoid
 redraw issues.
+- fish defines native `fish_prompt` and `fish_right_prompt` functions.
 
 ### Themes
 Available themes:

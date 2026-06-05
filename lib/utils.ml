@@ -71,6 +71,7 @@ let get_esc () =
       match s with
       | "zsh" -> Some (fun x -> "%{" ^ x ^ "%}")
       | "bash" -> Some (fun x -> "\\[" ^ x ^ "\\]")
+      | "fish" -> Some default_esc
       | _ -> None)
 
 type status = Success | Fail of int
